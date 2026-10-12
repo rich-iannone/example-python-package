@@ -218,3 +218,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ------------------------------------------------------------------------------------------------
+# Project-specific rules (everything above is GitHub's standard Python .gitignore)
+# ------------------------------------------------------------------------------------------------
+
+# Markdown and Quarto files at the top level of the repo are ignored by default, so scratch files
+# (planning notes, drafts, AI-agent work files) never get committed by accident. The `!` lines
+# are exceptions: the files that *should* be tracked. The leading `/` limits these rules to the
+# top level, so files like tests/README.md are unaffected.
+/*.md
+!README.md
+!PYTHON_PACKAGING_PRACTICES.md
+
+/*.qmd
+!playground.qmd
+
+# Rendering playground.qmd with Quarto produces these; they're output, not source.
+playground.html
+playground_files/
