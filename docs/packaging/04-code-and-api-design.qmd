@@ -1,0 +1,80 @@
+---
+title: "Code & API Design"
+description: "Conventions for Python code and public APIs."
+---
+
+## 14. Private modules, with the public API declared in `__init__.py`
+- Implementation lives in underscore modules: `_formats.py`, `_models.py`, `_backends.py`.
+- `__init__.py` re-exports the public names and declares an explicit `__all__`, which includes
+  `"__version__"`.
+- The rule: if a name isn't in `__all__`, it isn't public API. Great Docs uses `__all__` to decide
+  what to document, so this convention keeps the API and the documentation in sync.
+- In Greenwood, every module also has its own `__all__`. A new public symbol is added both there
+  and in `__init__.py`.
+
+## 15. `from __future__ import annotations` everywhere, with full annotations
+- Every source file in the newer packages starts with it.
+- Hints use `X | None` (never `Optional`), built-in generics, and `Literal[...]` for string-choice
+  parameters (for example `tbl_type: Literal["pandas", "polars"]`).
+- Imports needed only for type hints go under `if TYPE_CHECKING:`. This avoids import cycles and
+  avoids importing pandas or polars at runtime.
+
+## 16. Be DataFrame-agnostic
+- Users can pass pandas, polars or pyarrow data.
+- **narwhals** reads the input. Great Tables uses its own lazy backend layer with
+  `singledispatch` instead.
+- pandas and polars are **never** imported at module top level. They are imported lazily inside
+  functions, and a missing backend raises a helpful "install `mypkg[pl]`" message.
+- Functions that return tables take an output-format argument (`tbl_type=` or `format=`) and
+  auto-detect a sensible default when it is `None`.
+- Expensive or optional attributes are loaded lazily through a module-level `__getattr__`. For
+  example, Great Tables loads its datasets this way, so `import great_tables` doesn't need pandas.
+
+## 17. Keyword-only arguments for options
+- The first one or two arguments are positional (the data, the main input). Everything after
+  `*` is keyword-only:
+  ```python
+  def meta(es, *, method="REML", level=0.95, ...) -> MetaResult: ...
+  def fit(self, surv, *, data=None, by=None, weights=None): ...
+  ```
+- Defaults can then be added or reordered later without breaking callers.
+
+## 18. `None` means "auto-detect"
+- An option such as `make_page: bool | None = None` lets the library choose based on context, for
+  example the rendering environment. Users override it only when they need to.
+
+## 19. Rich result objects instead of bare tuples or dicts
+- Results are frozen dataclasses with a `*Result` naming convention: `MetaResult`,
+  `BootstrapResult`, `RMSTResult`.
+- They have a readable, deterministic `__repr__`: no memory addresses, no locale-dependent
+  formatting.
+- Conversion methods (`to_frame(format=...)`, `to_gt()`, `plot()`) let users move straight into
+  tables and plots.
+- Objects that display in notebooks implement `_repr_html_`. Examples: GT tables and Pointblank
+  validation reports.
+
+## 20. Consistent, discoverable naming
+- Related functions share a verb-family prefix, so tab-completion works as documentation:
+  - Great Tables: `fmt_*`, `cols_*`, `tab_*`, `opt_*`, `sub_*`.
+  - Pointblank: `col_vals_*`, `rows_*`.
+- Method chaining reads like a sentence: `GT(df).tab_header(...).fmt_number(...).cols_label(...)`.
+  In Great Tables, each method returns a **new** object rather than mutating the existing one.
+
+## 21. Error messages that tell you how to fix the problem
+- They name the offending argument, show the bad value, and say what is allowed:
+  ```python
+  raise ValueError(f"Unknown measure {measure!r}. Valid measures: {valid}.")
+  ```
+- Argument checks happen once, early (for example in `__post_init__`), not throughout the code.
+- Warnings use `warnings.warn(..., stacklevel=2)`, so they point at the user's own line of code.
+
+## 22. Library code never prints
+- Output goes through return values, reprs and `warnings`. Logging is used only in the larger
+  tools.
+- CLIs, where present, use **Click** (`@click.group`, `@click.version_option`) and are exposed
+  through `[project.scripts]`.
+
+## 23. Bundled example datasets
+- A `load_dataset(name, ...)` function and a way to list the available datasets are provided, so
+  every docstring example and user-guide page runs out of the box.
+- The data ships as package data and is read with `importlib.resources.files(...)`.

@@ -1,0 +1,28 @@
+---
+title: "CI & Repo Files"
+description: "Continuous integration on GitHub Actions, and the files every repository gets."
+---
+
+## 12. CI on GitHub Actions
+- Triggered on `push` to main, `pull_request`, and `release: published`.
+- The matrix covers the full supported Python range. For pure-Python packages it usually runs on
+  Linux and Windows, and on macOS too where OS behavior matters.
+- `fail-fast: false`, so one failing job doesn't hide the others.
+- A separate **lint job** runs `ruff check`, `ruff format --check` and `pyright`.
+- **Publishing to PyPI happens when a GitHub Release is published.** One job builds the sdist and
+  wheel and uploads them as an artifact. A separate publish job downloads that artifact and
+  uploads it with `pypa/gh-action-pypi-publish`, inside a `pypi` environment.
+- A separate **docs workflow** builds the site with Great Docs and deploys it to GitHub Pages.
+
+## 13. Repo-level files that every project gets
+- `LICENSE` (MIT).
+- `README.md` with this structure:
+  1. A centered logo that links to the docs site, and a one-line tagline.
+  2. A row of shields.io badges: PyPI version, Python versions, downloads, license, CI status,
+     repo status, docs link, contributors, Contributor Covenant.
+  3. A short pitch, a quick example, and installation (`pip install mypkg`, plus
+     `pip install "mypkg[all]"`).
+  4. A license section.
+- `CITATION.cff` with an ORCID. Great Docs turns it into a citation page automatically.
+- `.python-version` (3.13) for local development, and `.vscode/settings.json` (ruff as formatter,
+  a ruler at column 100).

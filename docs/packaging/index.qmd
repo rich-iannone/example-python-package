@@ -1,0 +1,19 @@
+---
+title: "Python Packaging Reference"
+---
+
+These practices recur across my Python projects: Great Tables, Great Docs, Pointblank, multimark,
+nokap, weathervault, GridWell, Whittaker, Greenwood and GlassDelta. Each item is
+something most or all of these projects do.
+
+The practices are numbered, and the numbers run across all the pages, so a reference like
+"item 21" means the same thing everywhere:
+
+- [Packaging & Project Setup](project-setup.qmd): items 1–10
+- [Testing](testing.qmd): item 11
+- [CI & Repo Files](ci-and-repo-files.qmd): items 12–13
+- [Code & API Design](code-and-api-design.qmd): items 14–23
+- [Documentation](documentation.qmd): items 24–32
+
+The `tinytab` package in this repository follows these practices, so each one can be seen
+working in a real project layout.

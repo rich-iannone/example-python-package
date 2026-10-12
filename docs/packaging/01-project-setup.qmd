@@ -1,0 +1,125 @@
+---
+title: "Packaging & Project Setup"
+description: "How projects are packaged: pyproject.toml, versions, layout, dependencies, metadata, typing, linting, and the Makefile."
+---
+
+## 1. `pyproject.toml` is the single source of truth
+- There is no `setup.py` or `setup.cfg`. The only exception is when a compiled extension needs
+  one (multimark uses a CFFI build).
+- Project metadata, dependencies, extras, and the ruff, pytest, coverage and pyright settings all
+  live in `pyproject.toml`.
+
+## 2. Versions come from git tags, not from a hard-coded string
+- The build uses setuptools with `setuptools_scm` and `dynamic = ["version"]`:
+  ```toml
+  [build-system]
+  requires = ["setuptools>=77", "setuptools_scm>=8"]
+  build-backend = "setuptools.build_meta"
+
+  [project]
+  dynamic = ["version"]
+
+  [tool.setuptools_scm]
+  ```
+- A release is just a tag (`v0.7.0`) plus a GitHub Release. Nobody has to remember to bump a
+  version string.
+- At runtime, `__version__` is read from the installed metadata, with a fallback:
+  ```python
+  from importlib.metadata import PackageNotFoundError, version
+  try:
+      __version__ = version("mypkg")
+  except PackageNotFoundError:  # pragma: no cover
+      __version__ = "0.0.0"
+  ```
+- CI checks out the repo with `fetch-depth: 0` so that setuptools_scm can see the tags.
+- The Rust package (GridWell) uses **maturin** with `abi3` wheels instead, so one wheel
+  per platform covers every Python version.
+
+## 3. Flat layout with explicit package discovery
+```toml
+[tool.setuptools.packages.find]
+include = ["mypkg", "mypkg.*"]
+```
+- Explicit discovery means stray folders such as `tests/`, `scripts/` or `user_guide/` never get
+  shipped by accident.
+
+## 4. Support a modern Python floor and test the whole range
+- `requires-python = ">=3.10"` is the norm.
+- Classifiers list every supported minor version, 3.10 through 3.14.
+- The CI matrix tests that same range.
+- Code uses modern syntax (`X | None`, built-in generics) throughout.
+
+## 5. Keep hard dependencies small, with lower bounds only
+- Dependencies get `>=` lower bounds and no upper caps. Caps cause resolver conflicts for
+  downstream users.
+- When an upper bound or pin is truly necessary, it gets a comment saying why:
+  ```toml
+  "sqlglot>=23.4,<30.18",  # sqlglot 30.18+ breaks DROP statements
+  ```
+- Heavy or optional functionality goes into extras. pandas and polars are never hard
+  dependencies when they can be avoided. The current template's core set is just
+  `narwhals`, `numpy`, `scipy` and `typing_extensions`.
+
+## 6. Short, predictable extras names
+- `pd`, `pl`, `pa` install the pandas, polars and pyarrow backends.
+- Feature extras are named after what they enable: `altair`, `tables`, `formula`, `fast`
+  (numba), `mcp`.
+- `docs` installs Great Docs.
+- `dev` installs pytest, pytest-cov, ruff, pyright, build, and the backend extras.
+- `all` is self-referencing: `all = ["mypkg[pd,pl,pa,altair,tables]"]`.
+- Error messages tell users which extra to install, e.g. `pip install "mypkg[pl]"`.
+
+## 7. Complete, accurate metadata
+- `authors` and `maintainers` (with email), `license = { file = "LICENSE" }`, `keywords`, and
+  classifiers covering Development Status, Intended Audience, Topic, Python versions and
+  `Typing :: Typed`.
+- `[project.urls]` uses a consistent four-key set:
+  ```toml
+  [project.urls]
+  Homepage = "..."
+  Repository = "..."
+  Documentation = "..."
+  "Bug Tracker" = "..."
+  ```
+- The license is MIT, the same choice in every project.
+
+## 8. Ship type information
+- Packages include a `py.typed` marker and list it explicitly in package data:
+  ```toml
+  [tool.setuptools.package-data]
+  mypkg = ["py.typed"]
+  ```
+- pyright runs in **strict** mode, configured in `pyproject.toml`. Only the noisy
+  "unknown type" family of checks is relaxed, because numpy and scipy stubs trigger it
+  constantly.
+
+## 9. Use ruff for both linting and formatting, at line length 100
+```toml
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+```
+- A single tool replaces black, isort, flake8 and pyupgrade.
+- **pre-commit** runs ruff and the basic hygiene hooks (trailing whitespace, end-of-file).
+  The ruff version in pre-commit is pinned to match the one in the `dev` extra, with a comment
+  telling you to bump both together.
+
+## 10. A self-documenting Makefile as the developer interface
+- Every project has the same targets, so moving between repos needs no re-learning:
+  ```make
+  help:        ## Show this help message (awk over the "## " comments)
+  install:     ## pip install -e ".[dev]"
+  test:        ## pytest with coverage
+  lint:        ## ruff format + ruff check --fix
+  check-format:## ruff format --check + ruff check
+  type-check:  ## pyright mypkg
+  check: lint type-check test   ## the pre-push gate
+  build:       ## python -m build
+  docs:        ## great-docs build
+  docs-preview:## great-docs preview
+  clean:       ## clean-build clean-pyc clean-test
+  ```
+- `make help` lists all targets, generated from the `## ` comments on each line.

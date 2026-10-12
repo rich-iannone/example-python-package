@@ -1,0 +1,104 @@
+---
+title: "Documentation"
+description: "How every package's documentation site is built with Great Docs."
+---
+
+## 24. Every package has a docs site, built by Great Docs
+- Everything about the docs lives in a `docs/` folder: `docs/great-docs.yml` configures the
+  site, next to the user guide and any custom sections. `great-docs build` produces a Quarto site
+  in `docs/_site/`, which CI deploys to GitHub Pages. (This `docs/` layout is **new**; older
+  projects keep these files at the repo root.)
+- Great Docs discovers the API from `__all__`. Because of item 14, the API reference stays in
+  sync without extra work.
+- The `pyproject.toml` `docs` extra installs Great Docs, and the `make docs` / `make docs-preview`
+  targets wrap it.
+
+## 25. NumPy-style docstrings with executable examples
+- The config sets `parser: numpy`. Docstrings use the standard sections `Parameters`, `Returns`,
+  `Raises` and `Examples`, plus custom sections such as `Details` and `Notes`, which render as
+  headings.
+- **Examples are real Quarto `{python}` cells, not `>>>` doctests.** They run at build time, so
+  the docs show actual rendered output: tables, plots, reprs.
+  ````
+  Examples
+  --------
+  Let's use the `exibble` dataset to create a table.
+
+  ```{{python}}
+  from great_tables import GT, exibble
+  GT(exibble).fmt_number(columns="num", decimals=2)
+  ```
+  ````
+- Examples **interleave prose and code cells**: explain a step, show it, explain the next one.
+- Examples use the bundled datasets (item 23), so readers can copy and paste them.
+- Parameters are documented **by bare name**, with the type left to the signature:
+  ```
+  Parameters
+  ----------
+  columns
+      The columns to format. ...
+  ```
+  This is the Great Docs house style. It avoids duplicating annotations, and the signature's
+  type hint stays authoritative.
+- Docstrings refer to other parameters by name (`decimals=`), and cross-reference functions with
+  interlinks: ``[`fmt_number()`](`great_tables.GT.fmt_number`)``.
+- Docstrings use Markdown and Quarto markup with single backticks. No RST roles or
+  double backticks.
+
+## 26. A curated API reference, not one long alphabetical dump
+- `reference:` in `great-docs.yml` groups the API into titled sections, each with a short `desc:`
+  (e.g. "Formatting", "Styling", "Export").
+- Each section lists its functions, and big classes are split up:
+  - `- name: GT` with `members: false`, then the `GT.method` entries listed under their own
+    sections.
+  - Result classes sit beside the function that produces them (`meta` next to `MetaResult` with
+    `members: true`).
+
+## 27. A numbered user guide in Quarto
+- `docs/user_guide/` contains numbered `.qmd` files: `00-get-started.qmd`, `01-...`, ...
+  `90-glossary.qmd`.
+  - The numeric prefix sets the order and is stripped from titles and URLs.
+  - High numbers such as `90-` are reserved for back matter like the glossary.
+- Pages are grouped into sidebar sections with the `guide-section:` frontmatter key
+  ("Getting started", "Core concepts", "Advanced features", ...).
+- Nearly every page contains executable `{python}` cells, so the guide is a tested tutorial
+  rather than static prose.
+- Larger projects add extra sections alongside the guide, such as Examples, Blog or Cookbook
+  (via `sections:`). These can be blog-style index pages or have grouped sidebars.
+
+## 28. A designed landing page
+- `index.qmd` is written by hand rather than reusing the README:
+  - `title: ""`
+  - a hero with the logo and tagline
+  - a short live (code-folded) example right away
+  - a "Why mypkg?" section
+- `hero:`, `logo:` (light and dark variants) and `nav_icons:` in the config give each site a
+  polished, consistent look.
+
+## 29. Commit the freeze cache
+- `docs/_freeze/` is committed, so CI doesn't re-run every expensive example on every build. Pages
+  re-execute only when their source changes.
+
+## 30. Author, citation and funding metadata on the site
+- `authors:` (with ORCID, GitHub and affiliation) and `funding:` (for company-funded projects) in
+  `great-docs.yml`, plus `CITATION.cff`, produce an authors page and a citation page.
+- A changelog page is built from GitHub Releases automatically, so writing good release notes
+  *is* writing the changelog.
+
+## 31. Docs for AI agents: skills and llms.txt
+- Great Docs generates `llms.txt` and `llms-full.txt` on every build, so LLM tools can consume
+  the docs.
+- The newer projects ship **hand-written `skills/<pkg>/SKILL.md` files** (Pointblank, nokap,
+  multimark):
+  - They are agent-facing guides with "when to use what" decision tables, the core API, gotchas,
+    and error handling.
+  - They are registered under `skill:` in `great-docs.yml` and served from
+    `.well-known/agent-skills/`.
+- Projects with a CLI or an MCP server document those too (the `cli:` and `mcp:` config blocks).
+
+## 32. Docs CI
+- On every push to main: install the package plus Great Docs, set up Quarto
+  (`quarto-dev/quarto-actions/setup`), run `great-docs build`, and deploy with
+  `actions/upload-pages-artifact` + `actions/deploy-pages`.
+- Great Tables and Pointblank also build **per-PR preview sites**, so reviewers can see the
+  rendered docs before merging.

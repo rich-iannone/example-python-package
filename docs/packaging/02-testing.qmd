@@ -1,0 +1,220 @@
+---
+title: "Testing"
+description: "How tests are laid out, configured, written, and run."
+---
+
+Every project is tested with **pytest**, configured in `pyproject.toml` and run through
+`make test`, locally and in CI. The subsections below describe how tests are laid out, configured,
+written, and run.
+
+Most of these practices are shared across the projects. A few are marked **(new)**: they're
+established in this example repository and are being adopted going forward, so older projects
+don't follow them yet.
+
+## 11.1 Layout and naming
+- Tests live in a top-level `tests/` folder, outside the package, so they never ship in the
+  wheel.
+- **One test file per module (new).** The tests for `mypkg/_formats.py` live in
+  `tests/test_formats.py`, so the tests for any piece of code are easy to find, and a new module
+  gets a new test file. The leading underscore of a private module is dropped: it tells users
+  "not public API", and tests don't need it. (Existing projects mostly follow this already, but
+  great-tables and pointblank also have some `test__utils.py`-style names, and whittaker groups
+  some tests by feature.)
+- Large modules can split their tests by topic with a shared prefix: `test_formats_dates.py`,
+  `test_formats_numbers.py`.
+- `tests/test_package.py` covers the package as a whole rather than one module: `__version__`,
+  and that `__all__` matches the intended public API (see 11.11).
+- Shared fixtures go in `tests/conftest.py`. Data files the tests read (CSV inputs, reference
+  output from R) go in `tests/fixtures/`. Snapshot files are kept in `tests/__snapshots__/` (or
+  `tests/snapshots/` with pytest-snapshot) and committed.
+- When tests need shared helper functions, `tests/` gets an `__init__.py` so they can be imported
+  as `from tests.utils import ...` (as in great-tables).
+- Test names describe the behavior being checked (`test_fmt_currency_unknown_code`), because the
+  name is the first thing anyone reads when a test fails.
+
+## 11.2 Configuration
+All pytest settings live in `[tool.pytest.ini_options]`. There's no `pytest.ini` or `setup.cfg`.
+```toml
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",                 # summarize skips, xfails, and failures at the end
+    "--strict-markers",    # an undeclared marker (e.g. a typo) is an error
+    "--strict-config",     # a misspelled setting in this table is an error
+    "-m", "not slow",      # deselect slow tests by default
+]
+markers = [
+    "slow: longer-running tests (run with `-m slow`)",
+]
+xfail_strict = true
+filterwarnings = ["error"]
+```
+- `testpaths` lets `pytest` run from anywhere in the repo, and stops it wandering into `.venv`
+  or `docs/`.
+- `--strict-markers` and `--strict-config` turn silent typos into errors (already in Great Docs
+  and nokap; **new** for the template).
+- `xfail_strict = true` **(new)**: an `xfail` test that starts passing is reported as a failure,
+  so a fixed bug's marker gets removed and the test goes back to guarding against it.
+- `filterwarnings = ["error"]` **(new)**: any warning a test doesn't explicitly expect fails it, so
+  deprecation warnings from dependencies are noticed early, not when the removal lands. A warning
+  that's known and harmless gets a targeted ignore, scoped by message, category and module, as
+  Whittaker already does:
+  ```toml
+  filterwarnings = [
+      "error",
+      "ignore:Determining the column names:polars.exceptions.PerformanceWarning:narwhals",
+  ]
+  ```
+
+## 11.3 Running tests: `make test` and CI
+- `make test` runs the suite with coverage and the 10 slowest durations:
+  ```make
+  test: ## Run the test suite with coverage
+  	@$(PYTHON) -m pytest --cov=mypkg --cov-report=term-missing --durations 10
+  ```
+- In the newest template (Whittaker, GlassDelta) these options are in `addopts` instead. Keeping
+  them in the Makefile **(new)** leaves a bare `pytest` fast and uncluttered while iterating,
+  with `make test` as the full run. Either way, `make test` is the command people run.
+- Companion targets: `make test-update` (accept snapshot changes), plus targets for marked
+  subsets where a project has them (`test-unit`, `test-rparity`, `test-slow`).
+- CI runs `make test` too (with `PYTHON=python` to use the runner's Python instead of `.venv`),
+  so "passes locally" and "passes in CI" mean the same thing. See item 12 for the matrix.
+- Day-to-day pytest flags: `-x` (stop at first failure), `--lf` (rerun last failures), `-k`
+  (select by name), `--pdb` (debugger on failure).
+
+## 11.4 Writing tests
+- Plain `assert`, relying on pytest's assertion rewriting to show both sides when a comparison
+  fails. No `unittest.TestCase` or `assertEqual`. Test classes are rare: functions are the norm.
+- One behavior per test. Several asserts are fine when they check one thing together.
+- **Parametrize heavily.** Each case tests one behavior and specifies only the arguments that
+  differ from the defaults. Cases get readable ids, either with `ids=` or, better, with
+  `pytest.param(..., id="...")` next to each case:
+  ```python
+  @pytest.mark.parametrize(
+      "x, expected",
+      [
+          pytest.param(0.256, "25.6%", id="typical"),
+          pytest.param(1.5, "150.0%", id="over-100"),
+      ],
+  )
+  def test_fmt_percent(x, expected):
+      assert fmt_percent(x) == expected
+  ```
+- **Errors are tested, messages included.** `pytest.raises(..., match=...)` checks the exception
+  type and the message. Since good error messages are part of the API (item 21), a test can also
+  check that the message names the valid options:
+  ```python
+  with pytest.raises(ValueError, match="Unknown currency 'XYZ'"):
+      fmt_currency(10, currency="XYZ")
+  ```
+- **Warnings are tested with `pytest.warns`**, which `filterwarnings = ["error"]` makes mandatory
+  for code that's meant to warn.
+- **Floats are never compared with `==`.** Use `pytest.approx` for scalars and short lists, and
+  `numpy.testing.assert_allclose` for arrays. The tolerance should reflect how precise the
+  expected value really is; comparisons to zero need an absolute tolerance (`abs=`), because a
+  relative one is meaningless there.
+- Design decisions get pinned down by tests: keyword-only arguments (item 17), frozen result
+  objects (item 19), and deterministic reprs.
+
+## 11.5 Fixtures
+- Shared setup is a fixture, never copy-pasted. Fixtures used by several files go in
+  `conftest.py`; fixtures used by one file stay in that file.
+- Fixtures are function-scoped (rebuilt for every test) by default, which keeps tests
+  independent. Expensive, read-only setup, such as fitting a model or loading a large dataset,
+  uses `scope="module"` or `scope="session"`, as many of the Whittaker and GlassDelta test files
+  do. Never use a broad scope for something a test might modify.
+- Fixtures that need cleanup `yield` instead of `return`; the code after `yield` is the teardown.
+- Built-in fixtures are used instead of hand-rolled equivalents: `tmp_path` for anything that
+  writes files (nothing is ever written into the repo), `monkeypatch` for environment variables
+  and attributes, `capsys` for printed output.
+- Shared fixtures get a docstring, which `pytest --fixtures` displays.
+
+## 11.6 Markers, skips and xfails
+- Every custom marker is declared under `markers`, with a description. Common ones:
+  - `slow`: deselected by default with `-m "not slow"`.
+  - `integration`: needs something external, such as Chrome (great-tables, nokap); not run in CI.
+  - `rparity`: numeric validation against R (see 11.9).
+- **Optional dependencies:** `pytest.importorskip("polars")` skips a test when a backend isn't
+  installed. Great Tables also has a dedicated `no_pandas` run that proves the package imports
+  and works without pandas.
+- `@pytest.mark.skipif(condition, reason=...)` for platform- or version-specific tests. Every
+  skip has a reason, and `-ra` lists them all in the summary, so skipped tests don't go
+  unnoticed.
+- `@pytest.mark.xfail(reason=...)` records a known bug or missing feature as a test that's
+  expected to fail. With `xfail_strict = true`, fixing the bug forces the marker's removal.
+
+## 11.7 Snapshot tests
+- Long rendered output (HTML tables, reports, SVG) is checked with snapshot tests rather than
+  hand-written expected strings: **syrupy** (Great Tables) or **pytest-snapshot** (the newest
+  template and Pointblank).
+- The workflow: write the test, record with `make test-update` (`--snapshot-update`), **read the
+  recorded output to confirm it's right**, and commit it with the test. When output changes
+  later, the test fails with a diff; if the change is intended, re-record.
+- Reviewing the snapshot diff is part of code review. A snapshot only proves the output didn't
+  change, not that it's correct, so a recorded snapshot nobody looked at is worthless.
+- Snapshots are kept small and focused: snapshot just the part of the output under test (the
+  table body, not the whole page), so diffs stay readable and unrelated changes don't break
+  unrelated tests.
+- HTML snapshots can be stored as standalone `.html` files (a syrupy extension), so they can be
+  opened in a browser.
+- Snapshot files are excluded from the pre-commit hygiene hooks, which would otherwise "fix" them
+  (`end-of-file-fixer` adds a final newline) and break the snapshot tests:
+  ```yaml
+  exclude: ^tests/__snapshots__/
+  ```
+
+## 11.8 Docstring examples
+- Docstring examples are Quarto `{python}` cells, not `>>>` doctests (item 25), so pytest doesn't
+  run them. The docs build does: Great Docs executes every example, and an example that raises
+  an error fails the build. Docs CI therefore catches examples that have stopped working.
+- Examples demonstrate usage; they don't replace tests. Behavior an example shows is also
+  covered by a test, and examples aren't counted toward coverage.
+
+## 11.9 Parity tests against a reference implementation
+- The statistics packages check numeric results against R output stored as fixtures in
+  `tests/fixtures/r/`, with tight tolerances (`rtol=atol=1e-9`).
+- These tests carry the `rparity` marker and have their own Makefile target, so they can be run
+  on their own.
+
+## 11.10 Extra test tooling
+These plugins appear in the `dev` extra where they earn their place:
+- **pytest-randomly** (Pointblank, Whittaker, GlassDelta) runs tests in a random order and reseeds
+  `random` for each test, exposing tests that only pass because of what ran before them. The
+  seed is printed at the start of the run; reproduce an ordering with `--randomly-seed=<seed>`.
+- **hypothesis** (Pointblank, Whittaker, GlassDelta) for property-based tests: instead
+  of a few hand-picked cases, state a property that must hold for all inputs and let Hypothesis
+  search for a counterexample:
+  ```python
+  from hypothesis import given, strategies as st
+
+  @given(st.integers())
+  def test_fmt_number_always_has_two_decimals(x):
+      assert len(fmt_number(x).rsplit(".", 1)[1]) == 2
+  ```
+- **pytest-xdist** (Great Docs, Pointblank) runs tests in parallel (`-n auto`) once a
+  suite gets slow.
+- **pytest-timeout** (nokap, weathervault) fails a test that hangs, for code that drives a
+  browser or the network.
+
+## 11.11 Package-level tests
+- `test_package.py` checks that `__version__` resolves to a real version (not the `"0.0.0"`
+  fallback), and that `set(mypkg.__all__)` equals an explicit set of names. Changing the public
+  API then takes a deliberate edit to that test, which shows up in review.
+
+## 11.12 Coverage
+- Measured with pytest-cov, configured in `pyproject.toml`:
+  ```toml
+  [tool.coverage.run]
+  source = ["mypkg"]
+  branch = true
+
+  [tool.coverage.report]
+  show_missing = true
+  exclude_also = ["if TYPE_CHECKING:"]
+  ```
+- Branch coverage is on, so both sides of every `if` count.
+- Coverage is a guide to untested code, not a target to game. Missing lines are read as "what
+  behavior isn't tested?", and the answer is a test of that behavior, not a test that merely
+  executes the line. `# pragma: no cover` is reserved for lines that genuinely can't run under
+  test, like the `PackageNotFoundError` fallback for `__version__`.
