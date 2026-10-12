@@ -6,13 +6,12 @@ _How I package, test, and ship Python libraries, shown on a small working exampl
 
 [![CI](https://github.com/rich-iannone/example-python-package/actions/workflows/ci.yml/badge.svg)](https://github.com/rich-iannone/example-python-package/actions/workflows/ci.yml)
 ![Python versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/rich-iannone/example-python-package/blob/main/LICENSE)
 ![Repo status: example](https://img.shields.io/badge/status-educational%20example-orange)
 
 </div>
 
-> [!NOTE]
-> **This is educational reference material, not a real library.** The `tinytab` package exists
+> **Note: this is educational reference material, not a real library.** The `tinytab` package exists
 > only to give the packaging and testing practices something concrete to work on. It isn't (and
 > won't ever be) published to PyPI and won't be maintained as a library.
 
@@ -20,12 +19,13 @@ _How I package, test, and ship Python libraries, shown on a small working exampl
 
 | File | What it shows |
 |---|---|
-| [`PYTHON_PACKAGING_PRACTICES.md`](PYTHON_PACKAGING_PRACTICES.md) | The practices themselves, written down |
-| [`DEMO.md`](DEMO.md) | A step-by-step walkthrough of testing with pytest (the run-of-show for a live demo) |
-| [`pyproject.toml`](pyproject.toml) | Metadata, extras, and all tool config (pytest, coverage, ruff, pyright) in one place |
-| [`Makefile`](Makefile) | The developer interface: `make test`, `make check`, `make build`, ... |
-| [`tests/`](tests/) | pytest tests: fixtures, parametrize, error and warning checks, snapshot tests |
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | CI: lint and type-check, then tests across Python 3.10–3.14 on Linux and Windows |
+| [Python Packaging reference](https://rich-iannone.github.io/example-python-package/packaging/) | The practices themselves, written down (part of the docs site) |
+| [`docs/`](https://github.com/rich-iannone/example-python-package/tree/main/docs) | The documentation site, built with Great Docs: API reference, user guide, and the packaging reference |
+| [`pyproject.toml`](https://github.com/rich-iannone/example-python-package/blob/main/pyproject.toml) | Metadata, extras, and all tool config (pytest, coverage, ruff, pyright) in one place |
+| [`Makefile`](https://github.com/rich-iannone/example-python-package/blob/main/Makefile) | The developer interface: `make test`, `make check`, `make docs`, ... |
+| [`tests/`](https://github.com/rich-iannone/example-python-package/tree/main/tests) | pytest tests: fixtures, parametrize, error and warning checks, snapshot tests |
+| [`playground.qmd`](https://github.com/rich-iannone/example-python-package/blob/main/playground.qmd) | A scratch space for trying the package interactively |
+| [`.github/workflows/`](https://github.com/rich-iannone/example-python-package/tree/main/.github/workflows) | CI (lint, type-check, tests across Python 3.10–3.14 on Linux and Windows) and the docs site build |
 
 ## The example package
 
@@ -59,4 +59,4 @@ Run `make help` to see the other targets.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](https://github.com/rich-iannone/example-python-package/blob/main/LICENSE).
