@@ -1,0 +1,85 @@
+# ------------------------------------------------------------------------------------------------
+# NOTE: This file is heavily commented because this is an educational repository. In a real
+# project most of these comments would be left out. See ci.yml for the basics of how a workflow
+# file is put together.
+# ------------------------------------------------------------------------------------------------
+
+# Builds the documentation site with Great Docs, and publishes it to GitHub Pages.
+#
+# Every push and pull request builds the site, so a change that breaks the docs is caught before
+# it's merged. Only pushes to main publish it.
+#
+# One-time setup on GitHub: Settings > Pages > "Build and deployment" > Source: "GitHub Actions".
+
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Adds a "Run workflow" button in the Actions tab, to rebuild the site by hand.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # setuptools_scm needs the tags to work out the version shown on the site
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      # The `docs` extra brings in Great Docs (from its GitHub repository) and Jupyter, which
+      # runs the code in the user guide.
+      - name: Install package and docs dependencies
+        run: pip install -e ".[docs]"
+      # Great Docs uses Quarto to render the site, so Quarto has to be installed too.
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+      # No `make docs` here: the Makefile target points Quarto at a local .venv, which a CI runner
+      # doesn't have. On a fresh runner, the default kernel already uses the right Python.
+      - name: Build docs
+        run: great-docs build
+      # Save the built site, for the publish job below (and to download from the run's page).
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: docs/_site
+          include-hidden-files: true # keep hidden folders like .well-known/ (used for agent skills)
+
+  publish-docs:
+    name: Publish docs
+    needs: build-docs
+    # Publish only from main; pull requests just check that the site builds.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # Deploying to GitHub Pages needs these two permissions, and only this job gets them.
+    permissions:
+      pages: write
+      id-token: write
+    # The "github-pages" environment records each deployment, with a link to the live site.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-html
+          path: docs/_site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_site
+          include-hidden-files: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
