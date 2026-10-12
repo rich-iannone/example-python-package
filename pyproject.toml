@@ -94,6 +94,7 @@ dev = [
     "pyright",              # static type checker
     "pre-commit",           # runs ruff and other checks automatically on `git commit`
     "build",                # `python -m build` creates the sdist and wheel
+    "jupyter",              # runs the cells in playground.qmd (in an editor or `quarto render`)
 ]
 
 # Links shown in the sidebar on PyPI. The same four keys are used in every project.
