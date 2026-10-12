@@ -188,9 +188,12 @@ exclude_also = ["if TYPE_CHECKING:"]
 # pyright (static type checking: `make type-check`)
 # ================================================================================================
 
+# The pyright command (run by `make type-check` and CI) is the source of truth for type checking.
+# Editors read these same settings (Pylance in VS Code runs pyright), so they underline exactly
+# what `make type-check` reports.
 [tool.pyright]
-# Type-check the package only. Tests are checked less strictly (or not at all).
-include = ["tinytab"]
+# Check both the package and the tests.
+include = ["tinytab", "tests"]
 
 # Check against the oldest supported Python, so newer-only typing features get flagged.
 pythonVersion = "3.10"
@@ -205,6 +208,15 @@ reportMissingTypeStubs = false
 reportUnknownMemberType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
+
+# Tests are type-checked too, but with two kinds of check switched off. Test function parameters
+# (fixtures like `menu` and `tmp_path`, and parametrize arguments like `x` and `expected`) are
+# conventionally left unannotated, and strict mode would flag every one of them. An "execution
+# environment" applies settings to one folder only, so the package stays fully strict.
+# `extraPaths` lets imports inside tests/ resolve from the repository root.
+executionEnvironments = [
+    { root = "tests", extraPaths = ["."], reportMissingParameterType = false, reportUnknownParameterType = false, reportUnknownLambdaType = false },
+]
 
 
 # ================================================================================================
