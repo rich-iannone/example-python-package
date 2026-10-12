@@ -1,0 +1,78 @@
+# ------------------------------------------------------------------------------------------------
+# NOTE: This file is heavily commented because this is an educational repository. In a real
+# project most of these comments would be left out.
+# ------------------------------------------------------------------------------------------------
+
+# Configuration for the documentation site, built with Great Docs
+# (https://posit-dev.github.io/great-docs/). `make docs` builds it and `make docs-preview` serves
+# it locally.
+#
+# Everything about the docs lives in this `docs/` folder: this file, the user guide, the custom
+# section, and (after a build) the generated output in `_quarto/` and `_site/`, which are
+# gitignored. Package metadata (pyproject.toml), the source code, and the README stay at the
+# repository root, where Great Docs reads them from.
+#
+# Only the settings this site needs are written here; everything else keeps its default.
+# `great-docs config` prints a starter file with every option and its default, documented.
+
+# The docstring style used in the package (NumPy style: Parameters, Returns, Examples sections).
+parser: numpy
+
+# Shown in the landing page sidebar.
+authors:
+  - name: Richard Iannone
+    role: Maintainer
+    email: riannone@me.com
+    github: rich-iannone
+
+# tinytab is never published to PyPI, so don't show a PyPI link (it would lead nowhere).
+pypi: false
+
+# Where the site is published (GitHub Pages; see .github/workflows/docs.yml).
+site_url: https://rich-iannone.github.io/example-python-package/
+
+# ------------------------------------------------------------------------------------------------
+# API reference
+# ------------------------------------------------------------------------------------------------
+# The Reference pages are generated from the docstrings of everything in `tinytab.__all__`.
+# Without this setting, Great Docs groups the API automatically by kind (classes, functions,
+# ...). Grouping it by topic instead reads better, and sets the order of the sections.
+reference:
+  - title: Formatting values
+    desc: Turn single values into display strings.
+    contents:
+      - fmt_number
+      - fmt_percent
+      - fmt_currency
+
+  - title: Tables
+    desc: Build a table, format its columns, and render it as text or HTML.
+    contents:
+      # `members: false` keeps the methods off the class's own page, so each method below can
+      # get its own page and its own entry in this section.
+      - name: Table
+        members: false
+      - Table.fmt
+      - Table.as_text
+      - Table.as_html
+      - Table.to_csv
+      - Table.from_csv
+
+  - title: Summary statistics
+    desc: Summarize a set of numbers.
+    contents:
+      - summarize
+      - SummaryResult
+
+# ------------------------------------------------------------------------------------------------
+# User guide and custom sections
+# ------------------------------------------------------------------------------------------------
+# The user guide is found automatically in `docs/user_guide/`, so it needs no setting here.
+#
+# Custom sections are other groups of pages, each with its own navbar link and sidebar. This one
+# isn't about tinytab: it's the Python packaging reference that tinytab demonstrates, placed
+# after "Reference" in the navbar. Its `index.qmd` is used as the section's landing page.
+sections:
+  - title: Python Packaging
+    dir: packaging
+    navbar_after: Reference
