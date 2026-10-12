@@ -229,7 +229,6 @@ __marimo__/
 # top level, so files like tests/README.md are unaffected.
 /*.md
 !README.md
-!PYTHON_PACKAGING_PRACTICES.md
 
 /*.qmd
 !playground.qmd
@@ -237,3 +236,8 @@ __marimo__/
 # Rendering playground.qmd with Quarto produces these; they're output, not source.
 playground.html
 playground_files/
+
+# Great Docs build output: generated from docs/, so never committed. (docs/_freeze/, which caches
+# the results of running the code in the docs, *is* committed.)
+docs/_quarto/
+docs/_site/
