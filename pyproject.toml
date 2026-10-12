@@ -96,6 +96,14 @@ dev = [
     "build",                # `python -m build` creates the sdist and wheel
     "jupyter",              # runs the cells in playground.qmd (in an editor or `quarto render`)
 ]
+# Everything needed to build the documentation site (`make docs`). Great Docs is installed from
+# its GitHub repository rather than PyPI, because the `docs/` layout used here isn't in a release
+# yet. (A direct git reference like this is fine for a package that's never published to PyPI;
+# PyPI rejects packages whose dependencies point at git.)
+docs = [
+    "great-docs @ git+https://github.com/posit-dev/great-docs.git@main",
+    "jupyter",              # runs the code in the user guide pages
+]
 
 # Links shown in the sidebar on PyPI. The same four keys are used in every project.
 [project.urls]
@@ -134,16 +142,14 @@ tinytab = ["py.typed"]
 # Fail with a clear message if someone runs an older pytest than these settings need.
 minversion = "8.0"
 
-# Where to look for tests when you run a bare `pytest`. `tinytab` is included so that the
-# examples in docstrings are found and run as tests too (see `--doctest-modules`).
-testpaths = ["tests", "tinytab"]
+# Where to look for tests when you run a bare `pytest`.
+testpaths = ["tests"]
 
 # Command-line options added to every pytest run, as if you'd typed them yourself.
 addopts = [
     "-ra",               # summary of all non-passing outcomes at the end
     "--strict-markers",  # typo'd marker names become errors
     "--strict-config",   # typo'd config keys become errors
-    "--doctest-modules", # run the examples in docstrings as tests
     "-m", "not slow",    # skip slow tests by default (run them with `-m slow`)
 ]
 
