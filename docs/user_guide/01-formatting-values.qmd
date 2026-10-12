@@ -1,0 +1,88 @@
+---
+title: "Formatting Values"
+guide-section: "Using tinytab"
+---
+
+tinytab has three functions for turning a single number into a display string. They share the
+same rules: the value is the first argument, and every option is a keyword argument.
+
+## Numbers
+
+[`fmt_number()`](../reference/fmt_number.qmd) rounds to a fixed number of decimal places (2 by
+default) and groups thousands with a separator:
+
+```{python}
+from tinytab import fmt_number
+
+fmt_number(1234567.891)
+```
+
+Use `decimals=` to change the precision:
+
+```{python}
+fmt_number(1234567.891, decimals=0)
+```
+
+The thousands separator is a comma by default. Set another with `sep_mark=`:
+
+```{python}
+fmt_number(1234567.891, sep_mark=" ")
+```
+
+## Percentages
+
+[`fmt_percent()`](../reference/fmt_percent.qmd) takes a proportion, where `1` means 100%, and
+shows one decimal place by default:
+
+```{python}
+from tinytab import fmt_percent
+
+fmt_percent(0.256)
+```
+
+```{python}
+fmt_percent(0.256, decimals=0)
+```
+
+## Currencies
+
+[`fmt_currency()`](../reference/fmt_currency.qmd) adds a currency symbol and uses the right
+number of decimal places for the currency. US dollars are the default:
+
+```{python}
+from tinytab import fmt_currency
+
+fmt_currency(1234.5)
+```
+
+Choose another currency with a three-letter code (in any case). Yen are shown without decimal
+places, and negative amounts put the sign before the symbol:
+
+```{python}
+[
+    fmt_currency(1234.5, currency="eur"),
+    fmt_currency(1234.5, currency="JPY"),
+    fmt_currency(-5, currency="GBP"),
+]
+```
+
+The supported codes are USD, EUR, GBP, and JPY. Any other code is an error, and the message
+lists the valid ones:
+
+```{python}
+#| error: true
+fmt_currency(10, currency="XYZ")
+```
+
+## Only numbers
+
+All three functions accept only numbers (integers and floats). Anything else, including a
+number written as a string, raises a `TypeError`:
+
+```{python}
+#| error: true
+fmt_number("10")
+```
+
+`True` and `False` are rejected too, even though Python treats them as the integers 1 and 0.
+Formatting a boolean as "1.00" is almost always a mistake.

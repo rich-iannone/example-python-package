@@ -1,0 +1,66 @@
+---
+title: "Summary Statistics"
+guide-section: "Using tinytab"
+---
+
+[`summarize()`](../reference/summarize.qmd) computes the basic summary statistics of a set of
+numbers:
+
+```{python}
+from tinytab import summarize
+
+result = summarize([3.5, 2.25, 4.0, 1.75])
+result
+```
+
+## The result object
+
+`summarize()` returns a [`SummaryResult`](../reference/SummaryResult.qmd), with one attribute per
+statistic:
+
+```{python}
+result.mean, result.sd
+```
+
+| Attribute | Meaning |
+|---|---|
+| `n` | the number of values summarized |
+| `mean` | the arithmetic mean |
+| `sd` | the sample standard deviation (dividing by `n - 1`) |
+| `min`, `max` | the smallest and largest values |
+
+The printed form rounds to four significant figures, to keep it readable. The attributes hold
+the full values.
+
+A result can't be changed after it's created. Assigning to an attribute is an error:
+
+```{python}
+#| error: true
+result.mean = 0
+```
+
+## Missing values
+
+Missing values, written as `None` or NaN, are left out of the calculation. Since dropping data
+silently could hide a problem, `summarize()` issues a warning saying how many were dropped:
+
+```{python}
+import math
+
+summarize([3.5, None, 4.0, math.nan])
+```
+
+If there are no values left to summarize, `summarize()` raises an error:
+
+```{python}
+#| error: true
+summarize([None, None])
+```
+
+## A single value
+
+With only one value, there's no spread to measure, so the standard deviation is 0:
+
+```{python}
+summarize([42])
+```

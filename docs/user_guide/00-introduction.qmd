@@ -1,0 +1,57 @@
+---
+title: "Introduction"
+guide-section: "Getting Started"
+---
+
+tinytab is a small library for formatting values and rendering small tables, as text or as
+HTML. It has no dependencies beyond Python itself.
+
+It exists as an example: a small but complete package that shows how to structure, test, and
+document a Python library. It isn't published on PyPI.
+
+## Installation
+
+Install tinytab from its GitHub repository:
+
+```{.bash filename="Terminal"}
+pip install git+https://github.com/rich-iannone/example-python-package.git
+```
+
+## A first look
+
+tinytab does three things. It formats single values as strings:
+
+```{python}
+from tinytab import fmt_currency
+
+fmt_currency(1234.5)
+```
+
+It builds tables, with a formatter attached to any column:
+
+```{python}
+from tinytab import Table
+
+menu = Table(
+    {
+        "item": ["coffee", "bagel", "croissant"],
+        "price": [3.5, 2.25, 4.0],
+    }
+)
+
+menu.fmt("price", fmt_currency)
+```
+
+And it summarizes sets of numbers:
+
+```{python}
+from tinytab import summarize
+
+summarize([3.5, 2.25, 4.0])
+```
+
+The rest of this guide takes each of these in turn:
+
+- [Formatting Values](formatting-values.qmd): numbers, percentages, and currencies
+- [Tables](tables.qmd): building, formatting, rendering, and saving tables
+- [Summary Statistics](summary-statistics.qmd): `summarize()` and its result object

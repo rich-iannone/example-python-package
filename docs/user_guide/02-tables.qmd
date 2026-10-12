@@ -1,0 +1,98 @@
+---
+title: "Tables"
+guide-section: "Using tinytab"
+---
+
+A [`Table`](../reference/Table.qmd) holds data in columns, and renders it as text or HTML.
+
+## Creating a table
+
+Pass a dictionary that maps each column name to a list of values. All the columns must have the
+same length:
+
+```{python}
+from tinytab import Table
+
+menu = Table(
+    {
+        "item": ["coffee", "bagel", "croissant"],
+        "price": [3.5, 2.25, 4.0],
+        "sold": [120, 45, None],
+    }
+)
+
+menu.columns, menu.n_rows
+```
+
+In a notebook, or on a page like this one, a table displays as HTML. Missing values (`None`)
+show as empty cells:
+
+```{python}
+menu
+```
+
+## Formatting columns
+
+[`Table.fmt()`](../reference/Table.fmt.qmd) attaches a formatting function to a column. Any
+function that takes a value and returns a string works, including tinytab's own formatters:
+
+```{python}
+from tinytab import fmt_currency
+
+menu.fmt("price", fmt_currency)
+```
+
+`fmt()` returns a *new* table and leaves the original unchanged, so calls can be chained, one
+per column:
+
+```{python}
+from tinytab import fmt_number
+
+menu.fmt("price", fmt_currency).fmt("sold", lambda x: fmt_number(x, decimals=0))
+```
+
+Formatters are never given missing values, so a formatter doesn't need to handle `None`.
+
+## Rendering as text
+
+[`Table.as_text()`](../reference/Table.as_text.qmd) renders a Markdown-style text table, ready to
+print or paste into a Markdown document:
+
+```{python}
+print(menu.fmt("price", fmt_currency).as_text())
+```
+
+## Rendering as HTML
+
+[`Table.as_html()`](../reference/Table.as_html.qmd) returns the HTML as a string, for use in a
+web page or report:
+
+```{python}
+print(menu.fmt("price", fmt_currency).as_html())
+```
+
+Every value is HTML-escaped, so text in the data can never be mistaken for markup:
+
+```{python}
+Table({"name": ["<b>bold</b>", "Tom & Jerry"]})
+```
+
+## Saving and loading
+
+[`Table.to_csv()`](../reference/Table.to_csv.qmd) writes the table's values to a CSV file, and
+[`Table.from_csv()`](../reference/Table.from_csv.qmd) reads one back:
+
+```{python}
+import tempfile
+from pathlib import Path
+
+path = Path(tempfile.mkdtemp()) / "menu.csv"
+menu.to_csv(path)
+
+Table.from_csv(path)
+```
+
+Two things to know about CSV files:
+
+- Formatting isn't saved. `to_csv()` writes the original values, not the formatted ones.
+- CSV files don't record types, so `from_csv()` reads every value as a string.
