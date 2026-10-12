@@ -39,8 +39,10 @@ def _check_number(x: object, arg: str = "x") -> None:
 # added or reordered later without breaking anyone (practices doc, item 17).
 #
 # The docstring uses the NumPy style (Parameters, Returns, Examples sections), which
-# documentation tools turn into a formatted reference page. The `>>>` lines in Examples are
-# also run as tests (`--doctest-modules` in pyproject.toml), so the examples can't go stale.
+# documentation tools turn into a formatted reference page. The Examples section mixes short
+# explanations with Quarto `{python}` code cells. Great Docs runs the cells when it builds the
+# docs site, so the reference page shows their real output, and an example that stops working
+# fails the docs build instead of quietly going stale (practices doc, item 25).
 def fmt_number(x: float, *, decimals: int = 2, sep_mark: str = ",") -> str:
     """Format a number with a fixed number of decimal places and a thousands separator.
 
@@ -60,10 +62,19 @@ def fmt_number(x: float, *, decimals: int = 2, sep_mark: str = ",") -> str:
 
     Examples
     --------
-    >>> fmt_number(1234.567)
-    '1,234.57'
-    >>> fmt_number(1234.567, decimals=0)
-    '1,235'
+    By default, numbers get two decimal places and a comma between groups of thousands:
+
+    ```{python}
+    from tinytab import fmt_number
+
+    fmt_number(1234567.891)
+    ```
+
+    Use `decimals=` to change the precision, and `sep_mark=` for a different separator:
+
+    ```{python}
+    fmt_number(1234567.891, decimals=0, sep_mark=" ")
+    ```
     """
     _check_number(x)
     if decimals < 0:
@@ -95,8 +106,19 @@ def fmt_percent(x: float, *, decimals: int = 1) -> str:
 
     Examples
     --------
-    >>> fmt_percent(0.256)
-    '25.6%'
+    A proportion of `0.256` is 25.6%:
+
+    ```{python}
+    from tinytab import fmt_percent
+
+    fmt_percent(0.256)
+    ```
+
+    Use `decimals=` to change the precision:
+
+    ```{python}
+    fmt_percent(0.256, decimals=0)
+    ```
     """
     _check_number(x)
     # Reuse `fmt_number()` rather than formatting again, so rounding and separators behave the
@@ -122,10 +144,26 @@ def fmt_currency(x: float, *, currency: str = "USD") -> str:
 
     Examples
     --------
-    >>> fmt_currency(1234.5)
-    '$1,234.50'
-    >>> fmt_currency(-5, currency="gbp")
-    '-£5.00'
+    Amounts are in US dollars by default:
+
+    ```{python}
+    from tinytab import fmt_currency
+
+    fmt_currency(1234.5)
+    ```
+
+    Choose another currency with its three-letter code, in any case. Negative amounts put the sign
+    before the symbol:
+
+    ```{python}
+    fmt_currency(-5, currency="gbp")
+    ```
+
+    Yen are shown without decimal places:
+
+    ```{python}
+    fmt_currency(1234.5, currency="JPY")
+    ```
     """
     _check_number(x)
     code = currency.upper()
