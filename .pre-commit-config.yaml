@@ -1,0 +1,14 @@
+# See https://pre-commit.com for details. The ruff rev is pinned to match the
+# version in `pyproject.toml`'s `dev` extra; bump both together.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
