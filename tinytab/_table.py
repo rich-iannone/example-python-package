@@ -27,9 +27,15 @@ class Table:
 
     Examples
     --------
-    >>> tbl = Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]})
-    >>> tbl
-    <Table: 2 rows x 2 columns>
+    Create a table from a dictionary of columns. In a notebook, or on a page like this one, a table
+    displays as HTML:
+
+    ```{python}
+    from tinytab import Table
+
+    tbl = Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]})
+    tbl
+    ```
     """
 
     # The input type is deliberately broad: `Mapping` accepts any dict-like object, and
@@ -93,12 +99,20 @@ class Table:
 
         Examples
         --------
-        >>> from tinytab import fmt_currency
-        >>> tbl = Table({"price": [3.5]}).fmt("price", fmt_currency)
-        >>> print(tbl.as_text())
-        | price |
-        |-------|
-        | $3.50 |
+        Format the `price` column as US dollars:
+
+        ```{python}
+        from tinytab import Table, fmt_currency
+
+        tbl = Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]})
+        tbl.fmt("price", fmt_currency)
+        ```
+
+        Any function that takes a value and returns a string works as a formatter:
+
+        ```{python}
+        tbl.fmt("price", lambda x: f"{x:.1f} USD")
+        ```
         """
         if column not in self._data:
             raise KeyError(f"No column named {column!r}. Available columns: {self.columns}.")
@@ -132,6 +146,15 @@ class Table:
         -------
         str
             The rendered table.
+
+        Examples
+        --------
+        ```{python}
+        from tinytab import Table, fmt_currency
+
+        tbl = Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]})
+        print(tbl.fmt("price", fmt_currency).as_text())
+        ```
         """
         rows = self._rows()
         # Each column is as wide as its longest entry, header included. (With no rows, `max()`
@@ -160,6 +183,15 @@ class Table:
         -------
         str
             The rendered table, with all values HTML-escaped.
+
+        Examples
+        --------
+        ```{python}
+        from tinytab import Table
+
+        tbl = Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]})
+        print(tbl.as_html())
+        ```
         """
         # Every value is escaped (`<` becomes `&lt;`, `&` becomes `&amp;`, ...), so text from the
         # data can't be mistaken for HTML tags. Without it, a value like "<script>" would end up
@@ -187,6 +219,22 @@ class Table:
         ----------
         path
             The file to write.
+
+        Examples
+        --------
+        Save a table, then read it back with `Table.from_csv()`:
+
+        ```{python}
+        import tempfile
+        from pathlib import Path
+
+        from tinytab import Table
+
+        path = Path(tempfile.mkdtemp()) / "menu.csv"
+        Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]}).to_csv(path)
+
+        print(path.read_text())
+        ```
         """
         # `with` closes the file when the block ends, even if an error happens partway through.
         # `newline=""` is what the csv module needs to write line endings correctly on every
@@ -212,6 +260,23 @@ class Table:
         -------
         Table
             The table read from the file.
+
+        Examples
+        --------
+        Save a table with `Table.to_csv()`, then read it back. CSV files don't record types, so
+        every value comes back as a string:
+
+        ```{python}
+        import tempfile
+        from pathlib import Path
+
+        from tinytab import Table
+
+        path = Path(tempfile.mkdtemp()) / "menu.csv"
+        Table({"item": ["coffee", "bagel"], "price": [3.5, 2.25]}).to_csv(path)
+
+        Table.from_csv(path)
+        ```
         """
         # `DictReader` uses the header row as keys, giving one dict per data row.
         with open(path, newline="") as f:
