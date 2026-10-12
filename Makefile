@@ -148,14 +148,31 @@ build: clean-build ## Build the sdist and wheel into dist/
 
 
 # ================================================================================================
-# Playground
+# Documentation and playground
 # ================================================================================================
 
-# Quarto runs the Python cells through a Jupyter "kernel", chosen by name (`python3`). If you
-# have kernels registered elsewhere on your machine, `python3` can resolve to a different Python
-# that doesn't have tinytab installed. Pointing JUPYTER_PATH at the venv makes Quarto find the
-# venv's own kernel first. `$(CURDIR)` is the folder the Makefile is in.
+# Both of these run Python code through Quarto, which runs it in a Jupyter "kernel", chosen by
+# name (`python3`). If you have kernels registered elsewhere on your machine, `python3` can
+# resolve to a different Python that doesn't have tinytab installed. Pointing JUPYTER_PATH at
+# the venv makes Quarto find the venv's own kernel first. `$(CURDIR)` is the folder the Makefile
+# is in.
 JUPYTER_PATH := $(CURDIR)/.venv/share/jupyter
+
+# Install the documentation tools (Great Docs and Jupyter) with the `docs` extra.
+.PHONY: install-docs
+install-docs: ## Install the package with dev and docs extras into .venv
+	@$(PYTHON) -m pip install -e ".[dev,docs]"
+
+# Great Docs finds its configuration in docs/great-docs.yml. The finished site is written to
+# docs/_site/ (open docs/_site/index.html, or use `make docs-preview`).
+.PHONY: docs
+docs: ## Build the documentation site into docs/_site/
+	@JUPYTER_PATH="$(JUPYTER_PATH)" .venv/bin/great-docs build
+
+# Serves the site locally and opens it in your browser.
+.PHONY: docs-preview
+docs-preview: ## Preview the documentation site locally
+	@JUPYTER_PATH="$(JUPYTER_PATH)" .venv/bin/great-docs preview
 
 .PHONY: playground
 playground: ## Render playground.qmd to HTML with Quarto
