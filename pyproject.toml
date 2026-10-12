@@ -1,12 +1,45 @@
+# ------------------------------------------------------------------------------------------------
+# NOTE: This file is heavily commented because this is an educational repository. In a real
+# project most of these comments would be left out. A comment there is only worth having when
+# the reason for a setting isn't obvious (like the ruff pin in the `dev` extra below).
+# ------------------------------------------------------------------------------------------------
+
+# `pyproject.toml` is the single source of truth for the project: package metadata, dependencies,
+# and the configuration for every tool (pytest, coverage, pyright, ruff). There's no `setup.py`,
+# `setup.cfg`, `pytest.ini`, or `.coveragerc`.
+
+
+# ================================================================================================
+# Build system
+# ================================================================================================
+
+# How to turn this source tree into an installable package. Tools like `pip install` and
+# `python -m build` read this table, install `requires` into a temporary, isolated environment
+# (not your .venv), then call the `build-backend` to produce a wheel and/or sdist.
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = [
+    "setuptools>=77",       # 77+ supports the SPDX `license` string used below
+    "setuptools_scm>=8",    # works out the package version from git tags
+]
 build-backend = "setuptools.build_meta"
 
+
+# ================================================================================================
+# Project metadata (standardized by PEP 621; shown on PyPI and by `pip show`)
+# ================================================================================================
+
 [project]
+# The distribution name: what you `pip install`. It doesn't have to match the import name,
+# but life is simpler when it does.
 name = "tinytab"
 description = "An example Python package for learning how to package and test a library."
+
+# The README becomes the project description on PyPI.
 readme = "README.md"
-license = { file = "LICENSE" }
+
+# An SPDX license expression, plus the license file(s) to bundle into the sdist and wheel.
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["example", "tutorial", "pytest", "packaging", "tables"]
 authors = [
     { name = "Richard Iannone", email = "riannone@me.com" },
@@ -14,14 +47,29 @@ authors = [
 maintainers = [
     { name = "Richard Iannone", email = "riannone@me.com" },
 ]
+
+# The version isn't written here. It's "dynamic": setuptools_scm fills it in at build time
+# from the latest git tag (tag `v0.2.0` -> version `0.2.0`). Between tags you get a dev version
+# such as `0.2.1.dev3+g1a2b3c4`. Releasing is then just tagging, with no version string to bump.
 dynamic = ["version"]
+
+# The oldest Python we support. pip refuses to install on anything older. Keep this in step
+# with the classifiers below, the CI test matrix, and `target-version`/`pythonVersion` for
+# ruff and pyright.
 requires-python = ">=3.10"
+
+# Runtime dependencies: what users get when they install the package. Keep this list short,
+# and give lower bounds only (e.g. "numpy>=1.24"). Upper caps cause resolver conflicts for
+# everyone downstream. tinytab is pure Python with no dependencies at all.
 dependencies = []
+
+# Trove classifiers: a fixed vocabulary PyPI uses for search filters. Full list:
+# https://pypi.org/classifiers/ (the license is no longer a classifier, rather, it's `license`
+# above).
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -30,37 +78,66 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Education",
     "Topic :: Software Development :: Testing",
-    "Typing :: Typed",
+    "Typing :: Typed",                 # we ship type hints (see `py.typed` below)
 ]
 
+# Extras: optional groups of dependencies, installed with `pip install "tinytab[dev]"`.
+# Real packages also have extras for optional features (e.g. `pl = ["polars>=1.0"]`).
 [project.optional-dependencies]
+
+# Everything needed to work on the package itself. `make install` runs `pip install -e ".[dev]"`.
 dev = [
-    "pytest>=8",
-    "pytest-cov",
-    "syrupy>=4.6",
-    "ruff==0.17.0",  # keep in sync with the ruff rev in .pre-commit-config.yaml
-    "pyright",
-    "pre-commit",
-    "build",
+    "pytest>=8",            # the test runner
+    "pytest-cov",           # coverage reporting via `pytest --cov`
+    "syrupy>=4.6",          # snapshot testing (adds the `snapshot` fixture)
+    "ruff==0.17.0",         # keep in sync with the ruff rev in .pre-commit-config.yaml
+    "pyright",              # static type checker
+    "pre-commit",           # runs ruff and other checks automatically on `git commit`
+    "build",                # `python -m build` creates the sdist and wheel
 ]
 
+# Links shown in the sidebar on PyPI. The same four keys are used in every project.
 [project.urls]
 Homepage = "https://github.com/rich-iannone/example-python-package"
 Repository = "https://github.com/rich-iannone/example-python-package"
 Documentation = "https://github.com/rich-iannone/example-python-package#readme"
 "Bug Tracker" = "https://github.com/rich-iannone/example-python-package/issues"
 
+
+# ================================================================================================
+# setuptools: version and which files get packaged
+# ================================================================================================
+
+# An empty table is enough to switch setuptools_scm on, with its default settings.
 [tool.setuptools_scm]
 
+# Explicitly list the package(s) to ship. Without this, setuptools tries to auto-discover
+# packages and can pick up stray folders like `tests/` or `scripts/`.
 [tool.setuptools.packages.find]
 include = ["tinytab", "tinytab.*"]
 
+# Non-Python files to include inside the package. `py.typed` is an empty marker file that tells
+# type checkers (pyright, mypy) to use tinytab's inline type hints (PEP 561).
 [tool.setuptools.package-data]
 tinytab = ["py.typed"]
 
+
+# ================================================================================================
+# pytest
+# ================================================================================================
+
+# pytest reads its settings from this table. (`ini_options` is a historical name: these are
+# the same settings that would otherwise go in a `pytest.ini` file.)
 [tool.pytest.ini_options]
+
+# Fail with a clear message if someone runs an older pytest than these settings need.
 minversion = "8.0"
+
+# Where to look for tests when you run a bare `pytest`. `tinytab` is included so that the
+# examples in docstrings are found and run as tests too (see `--doctest-modules`).
 testpaths = ["tests", "tinytab"]
+
+# Command-line options added to every pytest run, as if you'd typed them yourself.
 addopts = [
     "-ra",               # summary of all non-passing outcomes at the end
     "--strict-markers",  # typo'd marker names become errors
@@ -68,34 +145,81 @@ addopts = [
     "--doctest-modules", # run the examples in docstrings as tests
     "-m", "not slow",    # skip slow tests by default (run them with `-m slow`)
 ]
+
+# Every custom marker must be declared here (`--strict-markers` enforces this). The text after
+# the colon is shown by `pytest --markers`.
 markers = [
-    "slow: marks tests as slow (deselected by default; run with '-m slow')",
+    "slow: marks tests as slow (deselected by default but run with '-m slow')",
 ]
+
 xfail_strict = true              # an xfail test that unexpectedly passes is a failure
 filterwarnings = ["error"]       # unexpected warnings fail the test
 
+
+# ================================================================================================
+# coverage (used by pytest-cov when running `pytest --cov`)
+# ================================================================================================
+
 [tool.coverage.run]
+# Measure only our own package, not the tests or installed libraries.
 source = ["tinytab"]
+
+# Branch coverage: for each `if`, check that both the true and the false paths were taken,
+# not just that the line ran.
 branch = true
 
 [tool.coverage.report]
+# List the line numbers that were never run, so you know where to add tests.
 show_missing = true
+
+# Imports under `if TYPE_CHECKING:` only exist for type checkers and never run, so they
+# shouldn't count as missed lines.
 exclude_also = ["if TYPE_CHECKING:"]
 
+
+# ================================================================================================
+# pyright (static type checking: `make type-check`)
+# ================================================================================================
+
 [tool.pyright]
+# Type-check the package only. Tests are checked less strictly (or not at all).
 include = ["tinytab"]
+
+# Check against the oldest supported Python, so newer-only typing features get flagged.
 pythonVersion = "3.10"
+
+# "strict" turns on nearly every check pyright has.
 typeCheckingMode = "strict"
+
+# ...and these relax the few strict checks that are more noise than help. The "unknown type"
+# checks fire constantly whenever a dependency (numpy, pandas, ...) has incomplete type stubs.
 reportPrivateUsage = false
 reportMissingTypeStubs = false
 reportUnknownMemberType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
 
+
+# ================================================================================================
+# ruff (linting and formatting: `make lint`, `make check-format`)
+# ================================================================================================
+
+# One tool replaces black (formatting), isort (import sorting), flake8 (linting), and
+# pyupgrade (modernizing syntax).
 [tool.ruff]
 line-length = 100
+
+# Only suggest syntax that works on our oldest supported Python.
 target-version = "py310"
 extend-exclude = ["*.md"]  # don't reformat code blocks inside the docs
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
+# Which families of lint rules to enable. Rule docs: https://docs.astral.sh/ruff/rules/
+select = [
+    "E",    # pycodestyle errors: basic style problems
+    "F",    # Pyflakes: real bugs like unused imports and undefined names
+    "I",    # isort: imports sorted and grouped consistently
+    "UP",   # pyupgrade: use modern syntax for our target Python (e.g. `X | None`)
+    "B",    # flake8-bugbear: likely bugs, like `zip()` without `strict=`
+    "SIM",  # flake8-simplify: code that can be written more simply
+]
