@@ -1,0 +1,36 @@
+---
+format: html
+html-table-processing: none
+---
+
+A scratch space for trying out tinytab interactively: run the cells one at a time in your editor
+(Positron, VS Code), or render the whole file with `make playground`. Nothing here is
+part of the package or the tests, so edit freely.
+
+Tables show up as HTML here because `Table` has a `_repr_html_()` method.
+
+```{python}
+from tinytab import Table, fmt_currency, fmt_number, fmt_percent, summarize
+
+menu = Table(
+    {
+        "item": ["coffee", "bagel", "croissant"],
+        "price": [3.5, 2.25, 4.0],
+        "sold": [120, 45, None],
+    }
+)
+
+menu.fmt("price", fmt_currency)
+```
+
+```{python}
+print(menu.fmt("price", fmt_currency).as_text())
+```
+
+```{python}
+fmt_number(1234567.891), fmt_percent(0.256), fmt_currency(-5, currency="GBP")
+```
+
+```{python}
+summarize([0.1, 0.2, 0.3, 0.4])
+```
