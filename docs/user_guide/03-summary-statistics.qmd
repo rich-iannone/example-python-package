@@ -62,5 +62,5 @@ summarize([None, None])
 With only one value, there's no spread to measure, so the standard deviation is 0:
 
 ```{python}
-summarize([42])
+summarize([23])
 ```
