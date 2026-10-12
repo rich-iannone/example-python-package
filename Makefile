@@ -148,6 +148,21 @@ build: clean-build ## Build the sdist and wheel into dist/
 
 
 # ================================================================================================
+# Playground
+# ================================================================================================
+
+# Quarto runs the Python cells through a Jupyter "kernel", chosen by name (`python3`). If you
+# have kernels registered elsewhere on your machine, `python3` can resolve to a different Python
+# that doesn't have tinytab installed. Pointing JUPYTER_PATH at the venv makes Quarto find the
+# venv's own kernel first. `$(CURDIR)` is the folder the Makefile is in.
+JUPYTER_PATH := $(CURDIR)/.venv/share/jupyter
+
+.PHONY: playground
+playground: ## Render playground.qmd to HTML with Quarto
+	@JUPYTER_PATH="$(JUPYTER_PATH)" QUARTO_PYTHON="$(PYTHON)" quarto render playground.qmd
+
+
+# ================================================================================================
 # Cleaning up
 # ================================================================================================
 
@@ -169,7 +184,8 @@ clean-build:
 clean-pyc:
 	@find . -name '__pycache__' -not -path './.venv/*' -exec rm -rf {} +
 
-# pytest's cache (used by `--lf`) and coverage output.
+# pytest's cache (used by `--lf`), coverage output, and the rendered playground.
 .PHONY: clean-test
 clean-test:
 	@rm -rf .pytest_cache .coverage htmlcov coverage.xml
+	@rm -rf playground.html playground_files
