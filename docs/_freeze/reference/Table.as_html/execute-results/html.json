@@ -1,0 +1,12 @@
+{
+  "hash": "c09f9c46e56c62fbf93ca5833b5ce45a",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [Table.as_html()]{.doc-object-name .doc-function .doc-label .doc-label-method}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nRender the table as an HTML `<table>`.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_table.py#L179-L211){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nTable.as_html()\n```\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [str]{.doc-parameter-annotation}</code>\n\n:   The rendered table, with all values HTML-escaped.\n:::\n\n## Examples {.doc-examples}\n\n::: {#69262ad8 .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import Table\n\ntbl = Table({\"item\": [\"coffee\", \"bagel\"], \"price\": [3.5, 2.25]})\nprint(tbl.as_html())\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n<table class=\"tinytab\">\n  <thead>\n    <tr><th>item</th><th>price</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>coffee</td><td>3.5</td></tr>\n    <tr><td>bagel</td><td>2.25</td></tr>\n  </tbody>\n</table>\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "Table.as_html_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

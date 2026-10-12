@@ -1,0 +1,12 @@
+{
+  "hash": "1412d2cb57d9ee8efc5a58cbaaa271f4",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [fmt_number()]{.doc-object-name .doc-function .doc-label .doc-label-function}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nFormat a number with a fixed number of decimal places and a thousands separator.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_formats.py#L46-L89){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nfmt_number(\n    x,\n    *,\n    decimals=2,\n    sep_mark=\",\",\n)\n```\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[x]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [float]{.doc-parameter-annotation}</code>\n\n:   The number to format.\n\n<code>[decimals]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [int]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[2]{.dv}]{.doc-parameter-default}</code>\n\n:   The number of decimal places.\n\n<code>[sep_mark]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [str]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[&quot;,&quot;]{.st}]{.doc-parameter-default}</code>\n\n:   The character used to separate groups of thousands.\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [str]{.doc-parameter-annotation}</code>\n\n:   The formatted number.\n:::\n\n## Examples {.doc-examples}\n\nBy default, numbers get two decimal places and a comma between groups of thousands:\n\n::: {#2e1a50c8 .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import fmt_number\n\nfmt_number(1234567.891)\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n'1,234,567.89'\n```\n:::\n:::\n\n\nUse `decimals=` to change the precision, and `sep_mark=` for a different separator:\n\n::: {#26aa32c5 .cell execution_count=2}\n``` {.python .cell-code}\nfmt_number(1234567.891, decimals=0, sep_mark=\" \")\n```\n\n::: {.cell-output .cell-output-display execution_count=2}\n```\n'1 234 568'\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "fmt_number_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

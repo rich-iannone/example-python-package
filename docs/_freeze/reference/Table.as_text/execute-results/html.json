@@ -1,0 +1,12 @@
+{
+  "hash": "1154575fc7494539bc760edc177f5f1d",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [Table.as_text()]{.doc-object-name .doc-function .doc-label .doc-label-method}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nRender the table as a Markdown-style text table.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_table.py#L142-L177){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nTable.as_text()\n```\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [str]{.doc-parameter-annotation}</code>\n\n:   The rendered table.\n:::\n\n## Examples {.doc-examples}\n\n::: {#c149edbc .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import Table, fmt_currency\n\ntbl = Table({\"item\": [\"coffee\", \"bagel\"], \"price\": [3.5, 2.25]})\nprint(tbl.fmt(\"price\", fmt_currency).as_text())\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n| item   | price |\n|--------|-------|\n| coffee | $3.50 |\n| bagel  | $2.25 |\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "Table.as_text_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "hash": "0b026791379cc1cdf520d3b32446f1e9",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"[Table]{.doc-object-name .doc-class .doc-label .doc-label-class}\"\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nA small, column-oriented table.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_table.py#L19-L287){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.CLASS}\n```python\nTable(data)\n```\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[data]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Mapping[str, Sequence[Any]]]{.doc-parameter-annotation}</code>\n\n:   A dictionary mapping column names to sequences of values. All columns must have the\n    same length.\n:::\n\n## Examples {.doc-examples}\n\nCreate a table from a dictionary of columns. In a notebook, or on a page like this one, a table\ndisplays as HTML:\n\n::: {#e99642ed .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import Table\n\ntbl = Table({\"item\": [\"coffee\", \"bagel\"], \"price\": [3.5, 2.25]})\ntbl\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```{=html}\n<table class=\"tinytab\">\n  <thead>\n    <tr><th>item</th><th>price</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>coffee</td><td>3.5</td></tr>\n    <tr><td>bagel</td><td>2.25</td></tr>\n  </tbody>\n</table>\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "Table_files"
+    ],
+    "filters": [],
+    "includes": {
+      "include-in-header": [
+        "<script src=\"https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js\" integrity=\"sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx\" crossorigin=\"anonymous\"></script>\n<script src=\"https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js\" integrity=\"sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2\" crossorigin=\"anonymous\" data-relocate-top=\"true\"></script>\n<script type=\"application/javascript\">define('jquery', [],function() {return window.jQuery;})</script>\n"
+      ]
+    }
+  }
+}

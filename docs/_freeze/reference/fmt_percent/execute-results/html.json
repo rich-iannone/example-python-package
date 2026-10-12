@@ -1,0 +1,12 @@
+{
+  "hash": "870f69dbd2cf32f82719a6fa203628c5",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [fmt_percent()]{.doc-object-name .doc-function .doc-label .doc-label-function}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nFormat a proportion as a percentage.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_formats.py#L92-L126){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nfmt_percent(\n    x,\n    *,\n    decimals=1,\n)\n```\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[x]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [float]{.doc-parameter-annotation}</code>\n\n:   The proportion to format, where `1` is 100%.\n\n<code>[decimals]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [int]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[1]{.dv}]{.doc-parameter-default}</code>\n\n:   The number of decimal places.\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [str]{.doc-parameter-annotation}</code>\n\n:   The formatted percentage.\n:::\n\n## Examples {.doc-examples}\n\nA proportion of `0.256` is 25.6%:\n\n::: {#8dc50c1f .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import fmt_percent\n\nfmt_percent(0.256)\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n'25.6%'\n```\n:::\n:::\n\n\nUse `decimals=` to change the precision:\n\n::: {#63f2b13a .cell execution_count=2}\n``` {.python .cell-code}\nfmt_percent(0.256, decimals=0)\n```\n\n::: {.cell-output .cell-output-display execution_count=2}\n```\n'26%'\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "fmt_percent_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

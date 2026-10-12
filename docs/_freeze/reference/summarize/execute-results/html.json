@@ -1,0 +1,12 @@
+{
+  "hash": "c0a841514f41067e21f540b3b5214cc9",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [summarize()]{.doc-object-name .doc-function .doc-label .doc-label-function}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nCompute summary statistics for a sequence of numbers.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_stats.py#L47-L101){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nsummarize(values)\n```\n:::\n\n::: {.doc-text}\n\nMissing values (`None` and NaN) are dropped with a warning.\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[values]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Sequence[float | None]]{.doc-parameter-annotation}</code>\n\n:   The numbers to summarize.\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [SummaryResult]{.doc-parameter-annotation}</code>\n\n:   The count, mean, standard deviation (with `n - 1` denominator), minimum and maximum.\n:::\n\n## Examples {.doc-examples}\n\nSummarize a list of numbers:\n\n::: {#4ae46fcc .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import summarize\n\nresult = summarize([3.5, 2.25, 4.0, 1.75])\nresult\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\nSummaryResult(n=4, mean=2.875, sd=1.051, min=1.75, max=4)\n```\n:::\n:::\n\n\nEach statistic is an attribute of the result:\n\n::: {#f77ee712 .cell execution_count=2}\n``` {.python .cell-code}\nresult.mean\n```\n\n::: {.cell-output .cell-output-display execution_count=2}\n```\n2.875\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "summarize_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

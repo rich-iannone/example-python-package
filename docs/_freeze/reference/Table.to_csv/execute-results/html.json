@@ -1,0 +1,12 @@
+{
+  "hash": "805fb8b0a8ab04c686d8a78ccb4fc8b5",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [Table.to_csv()]{.doc-object-name .doc-function .doc-label .doc-label-method}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nWrite the table's unformatted values to a CSV file.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_table.py#L215-L246){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nTable.to_csv(path)\n```\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[path]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [str | Path]{.doc-parameter-annotation}</code>\n\n:   The file to write.\n:::\n\n## Examples {.doc-examples}\n\nSave a table, then read it back with `Table.from_csv()`:\n\n::: {#dc428c7e .cell execution_count=1}\n``` {.python .cell-code}\nimport tempfile\nfrom pathlib import Path\n\nfrom tinytab import Table\n\npath = Path(tempfile.mkdtemp()) / \"menu.csv\"\nTable({\"item\": [\"coffee\", \"bagel\"], \"price\": [3.5, 2.25]}).to_csv(path)\n\nprint(path.read_text())\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nitem,price\ncoffee,3.5\nbagel,2.25\n\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "Table.to_csv_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

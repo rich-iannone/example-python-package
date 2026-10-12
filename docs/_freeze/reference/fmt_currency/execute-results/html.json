@@ -1,0 +1,12 @@
+{
+  "hash": "9bb29df8cf9dbaefdfb8a20d0683ef0b",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: >-\n  [fmt_currency()]{.doc-object-name .doc-function .doc-label\n  .doc-label-function}\nbody-classes: doc-api-page doc-py-api-page\nshift-heading-level-by: 0\ntoc-depth: 3\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nFormat a number as a currency value.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/rich-iannone/example-python-package/blob/main/tinytab/_formats.py#L129-L180){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nfmt_currency(\n    x,\n    *,\n    currency=\"USD\",\n)\n```\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[x]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [float]{.doc-parameter-annotation}</code>\n\n:   The amount to format.\n\n<code>[currency]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [str]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[&quot;USD&quot;]{.st}]{.doc-parameter-default}</code>\n\n:   A three-letter currency code (case-insensitive). Yen values are shown without\n    decimal places.\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [str]{.doc-parameter-annotation}</code>\n\n:   The formatted amount, with the currency symbol.\n:::\n\n## Examples {.doc-examples}\n\nAmounts are in US dollars by default:\n\n::: {#3ab3696a .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import fmt_currency\n\nfmt_currency(1234.5)\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n'$1,234.50'\n```\n:::\n:::\n\n\nChoose another currency with its three-letter code, in any case. Negative amounts put the sign\nbefore the symbol:\n\n::: {#d619503d .cell execution_count=2}\n``` {.python .cell-code}\nfmt_currency(-5, currency=\"gbp\")\n```\n\n::: {.cell-output .cell-output-display execution_count=2}\n```\n'-£5.00'\n```\n:::\n:::\n\n\nYen are shown without decimal places:\n\n::: {#c1e934ee .cell execution_count=3}\n``` {.python .cell-code}\nfmt_currency(1234.5, currency=\"JPY\")\n```\n\n::: {.cell-output .cell-output-display execution_count=3}\n```\n'¥1,234'\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "fmt_currency_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

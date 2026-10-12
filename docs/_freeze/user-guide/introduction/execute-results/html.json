@@ -1,0 +1,16 @@
+{
+  "hash": "03eedf0718b8572b2e7252ccf1d50ea1",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"Introduction\"\nguide-section: \"Getting Started\"\nbread-crumbs: false\n---\n\ntinytab is a small library for formatting values and rendering small tables, as text or as\nHTML. It has no dependencies beyond Python itself.\n\nIt exists as an example: a small but complete package that shows how to structure, test, and\ndocument a Python library. It isn't published on PyPI.\n\n## Installation\n\nInstall tinytab from its GitHub repository:\n\n```{.bash filename=\"Terminal\"}\npip install git+https://github.com/rich-iannone/example-python-package.git\n```\n\n## A first look\n\ntinytab does three things. It formats single values as strings:\n\n::: {#4ad8f16f .cell execution_count=1}\n``` {.python .cell-code}\nfrom tinytab import fmt_currency\n\nfmt_currency(1234.5)\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n'$1,234.50'\n```\n:::\n:::\n\n\nIt builds tables, with a formatter attached to any column:\n\n::: {#763cf9c9 .cell execution_count=2}\n``` {.python .cell-code}\nfrom tinytab import Table\n\nmenu = Table(\n    {\n        \"item\": [\"coffee\", \"bagel\", \"croissant\"],\n        \"price\": [3.5, 2.25, 4.0],\n    }\n)\n\nmenu.fmt(\"price\", fmt_currency)\n```\n\n::: {.cell-output .cell-output-display execution_count=2}\n```{=html}\n<table class=\"tinytab\">\n  <thead>\n    <tr><th>item</th><th>price</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>coffee</td><td>$3.50</td></tr>\n    <tr><td>bagel</td><td>$2.25</td></tr>\n    <tr><td>croissant</td><td>$4.00</td></tr>\n  </tbody>\n</table>\n```\n:::\n:::\n\n\nAnd it summarizes sets of numbers:\n\n::: {#0be867e7 .cell execution_count=3}\n``` {.python .cell-code}\nfrom tinytab import summarize\n\nsummarize([3.5, 2.25, 4.0])\n```\n\n::: {.cell-output .cell-output-display execution_count=3}\n```\nSummaryResult(n=3, mean=3.25, sd=0.9014, min=2.25, max=4)\n```\n:::\n:::\n\n\nThe rest of this guide takes each of these in turn:\n\n- [Formatting Values](formatting-values.qmd): numbers, percentages, and currencies\n- [Tables](tables.qmd): building, formatting, rendering, and saving tables\n- [Summary Statistics](summary-statistics.qmd): `summarize()` and its result object\n\n",
+    "supporting": [
+      "introduction_files"
+    ],
+    "filters": [],
+    "includes": {
+      "include-in-header": [
+        "<script src=\"https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js\" integrity=\"sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx\" crossorigin=\"anonymous\"></script>\n<script src=\"https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js\" integrity=\"sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2\" crossorigin=\"anonymous\" data-relocate-top=\"true\"></script>\n<script type=\"application/javascript\">define('jquery', [],function() {return window.jQuery;})</script>\n"
+      ]
+    }
+  }
+}
