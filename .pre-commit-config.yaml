@@ -24,9 +24,11 @@
 # the same checks (`make check-format`), so nothing slips through either way.
 
 # Files no hook should touch, as a regular expression matched against each file's path.
-# Snapshot files must stay exactly as syrupy recorded them, byte for byte. Without this,
-# `end-of-file-fixer` adds a final newline to the HTML snapshot, and the snapshot test fails.
-exclude: ^tests/__snapshots__/
+# - Snapshot files must stay exactly as syrupy recorded them, byte for byte. Without this,
+#   `end-of-file-fixer` adds a final newline to the HTML snapshot, and the snapshot test fails.
+# - docs/_freeze/ holds Quarto's cached results, which it rewrites (without a final newline) on
+#   every build that re-runs a page. "Fixing" them would only cause churn in every commit.
+exclude: ^(tests/__snapshots__|docs/_freeze)/
 
 # Each entry is a repository that provides hooks. pre-commit downloads it (at the `rev` given)
 # into its own cache and runs the hooks in an isolated environment, so the hooks don't depend on
