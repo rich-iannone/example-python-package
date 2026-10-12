@@ -31,9 +31,10 @@ Also in this folder:
 - `__snapshots__/`: recorded output for the snapshot tests in `test_table.py`. These files are
   committed to git
 
-There's one more kind of test that isn't in this folder: the `>>>` examples in the package's
-docstrings. `--doctest-modules` (set in `pyproject.toml`) runs them as tests too, so the
-examples in the documentation can't go stale. Run just those with `pytest tinytab`.
+The examples in the package's docstrings aren't run by pytest. They're Quarto `{python}` cells,
+run whenever the documentation site is built (`make docs`, and in CI), so an example that stops
+working fails the docs build. They show how to use the package, and the tests here are what check
+that it behaves correctly.
 
 ## Reading order
 
