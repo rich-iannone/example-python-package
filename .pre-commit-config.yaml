@@ -1,14 +1,60 @@
-# See https://pre-commit.com for details. The ruff rev is pinned to match the
-# version in `pyproject.toml`'s `dev` extra; bump both together.
+# ------------------------------------------------------------------------------------------------
+# NOTE: This file is heavily commented because this is an educational repository. In a real
+# project most of these comments would be left out.
+# ------------------------------------------------------------------------------------------------
+
+# pre-commit (https://pre-commit.com) runs checks automatically every time you `git commit`, so
+# problems are fixed before they ever reach the repo, CI, or a reviewer.
+#
+# Setup, once per clone (pre-commit itself comes with the `dev` extra):
+#
+#   pre-commit install              # adds a git hook that runs these checks on each commit
+#
+# Day to day:
+#
+#   git commit ...                  # the hooks run on the files staged for this commit
+#   pre-commit run --all-files      # run every hook on every file (e.g. right after installing)
+#   git commit --no-verify          # skip the hooks, for the rare case you really need to
+#
+# When a hook *fixes* something (strips trailing whitespace, reformats code), it changes the
+# files and stops the commit, so you can see what changed. Review the changes, `git add` them,
+# and commit again.
+#
+# pre-commit is a convenience, not a guarantee: anyone can skip it, or never install it. CI runs
+# the same checks (`make check-format`), so nothing slips through either way.
+
+# Files no hook should touch, as a regular expression matched against each file's path.
+# Snapshot files must stay exactly as syrupy recorded them, byte for byte. Without this,
+# `end-of-file-fixer` adds a final newline to the HTML snapshot, and the snapshot test fails.
+exclude: ^tests/__snapshots__/
+
+# Each entry is a repository that provides hooks. pre-commit downloads it (at the `rev` given)
+# into its own cache and runs the hooks in an isolated environment, so the hooks don't depend on
+# what's installed in your .venv.
 repos:
+  # General file hygiene, from the pre-commit project itself.
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    # `rev` pins an exact release (a git tag), so everyone runs the same hook versions.
+    # `pre-commit autoupdate` bumps every `rev` to the latest release (but see the ruff note below).
+    rev: v6.0.0
     hooks:
+      # Remove spaces and tabs at the ends of lines. They're invisible in an editor but show up
+      # as noise in diffs.
       - id: trailing-whitespace
+      # Make sure every file ends with exactly one newline. Many tools expect it, and diffs show
+      # "\ No newline at end of file" without it.
       - id: end-of-file-fixer
+
+  # ruff, for linting and formatting Python (configured in pyproject.toml under `[tool.ruff]`).
   - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Must match the ruff version pinned in pyproject.toml's `dev` extra. If they drift apart,
+    # the hook and `make lint` can disagree about formatting, and a commit that passes here can
+    # fail in CI. Bump both together (and after `pre-commit autoupdate`, re-pin the other one).
     rev: v0.17.0
     hooks:
-      - id: ruff
+      # Lint, applying automatic fixes (like sorting imports) where ruff can. Runs before the
+      # formatter, since fixes can leave code that needs reformatting.
+      - id: ruff-check
         args: [--fix]
+      # Format, like `ruff format`.
       - id: ruff-format
