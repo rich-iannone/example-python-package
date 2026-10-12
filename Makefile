@@ -124,10 +124,11 @@ check-format: ## Check formatting and lint without making changes
 	@$(PYTHON) -m ruff format --check
 	@$(PYTHON) -m ruff check
 
-# Settings (strict mode, Python version) come from `[tool.pyright]` in pyproject.toml.
+# Settings come from `[tool.pyright]` in pyproject.toml, including what to check (`include`: the
+# package and the tests), so no paths are given here.
 .PHONY: type-check
-type-check: ## Run pyright in strict mode
-	@$(PYTHON) -m pyright tinytab
+type-check: ## Run pyright (strict for the package; tests checked too)
+	@$(PYTHON) -m pyright
 
 # A target with prerequisites and no recipe of its own: `make check` runs `lint`, then
 # `type-check`, then `test`, stopping at the first failure. Run it before you push.
