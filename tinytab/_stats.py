@@ -61,8 +61,20 @@ def summarize(values: Sequence[float | None]) -> SummaryResult:
 
     Examples
     --------
-    >>> summarize([1, 2, 3, 4])
-    SummaryResult(n=4, mean=2.5, sd=1.291, min=1, max=4)
+    Summarize a list of numbers:
+
+    ```{python}
+    from tinytab import summarize
+
+    result = summarize([3.5, 2.25, 4.0, 1.75])
+    result
+    ```
+
+    Each statistic is an attribute of the result:
+
+    ```{python}
+    result.mean
+    ```
     """
     # Missing values come in two forms: `None`, and NaN ("not a number", a special float). NaN
     # can't be detected with `==` (NaN isn't equal even to itself), hence `math.isnan()`.
