@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tinytab"
+description = "An example Python package for learning how to package and test a library."
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["example", "tutorial", "pytest", "packaging", "tables"]
+authors = [
+    { name = "Richard Iannone", email = "riannone@me.com" },
+]
+maintainers = [
+    { name = "Richard Iannone", email = "riannone@me.com" },
+]
+dynamic = ["version"]
+requires-python = ">=3.10"
+dependencies = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Education",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+    "syrupy>=4.6",
+    "ruff==0.17.0",  # keep in sync with the ruff rev in .pre-commit-config.yaml
+    "pyright",
+    "pre-commit",
+    "build",
+]
+
+[project.urls]
+Homepage = "https://github.com/rich-iannone/example-python-package"
+Repository = "https://github.com/rich-iannone/example-python-package"
+Documentation = "https://github.com/rich-iannone/example-python-package#readme"
+"Bug Tracker" = "https://github.com/rich-iannone/example-python-package/issues"
+
+[tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+include = ["tinytab", "tinytab.*"]
+
+[tool.setuptools.package-data]
+tinytab = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests", "tinytab"]
+addopts = [
+    "-ra",               # summary of all non-passing outcomes at the end
+    "--strict-markers",  # typo'd marker names become errors
+    "--strict-config",   # typo'd config keys become errors
+    "--doctest-modules", # run the examples in docstrings as tests
+    "-m", "not slow",    # skip slow tests by default (run them with `-m slow`)
+]
+markers = [
+    "slow: marks tests as slow (deselected by default; run with '-m slow')",
+]
+xfail_strict = true              # an xfail test that unexpectedly passes is a failure
+filterwarnings = ["error"]       # unexpected warnings fail the test
+
+[tool.coverage.run]
+source = ["tinytab"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = ["if TYPE_CHECKING:"]
+
+[tool.pyright]
+include = ["tinytab"]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"
+reportPrivateUsage = false
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["*.md"]  # don't reformat code blocks inside the docs
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
