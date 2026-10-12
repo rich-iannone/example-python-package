@@ -1,40 +1,94 @@
+# ------------------------------------------------------------------------------------------------
+# NOTE: This file is heavily commented because this is an educational repository. In a real
+# project most of these comments would be left out.
+# ------------------------------------------------------------------------------------------------
+
+# GitHub Actions runs any workflow file found in .github/workflows/. This one is the project's
+# continuous integration (CI): on every push and pull request, it checks the code and runs the
+# tests on fresh machines, across every Python version and operating system we support. Results
+# show up as green checks or red Xs on commits and PRs, and in the repo's "Actions" tab.
+#
+# Structure: a workflow has triggers (`on:`) and one or more jobs. Each job runs on its own
+# fresh virtual machine (a "runner") and is a list of steps. Jobs run in parallel unless one
+# `needs:` another.
+
+# The name shown in the Actions tab and on the status badge.
 name: CI
 
+# ================================================================================================
+# Triggers: when does this workflow run?
+# ================================================================================================
 on:
+  # Pushes (including merges) to main.
   push:
     branches:
       - main
+  # Pull requests that target main. This is what puts the checks on a PR, so problems are caught
+  # before merging.
   pull_request:
     branches:
       - main
+  # Publishing a GitHub Release. This is the only trigger that runs the `build` job below.
   release:
     types: [published]
 
+# The GitHub token each run gets can, by default, write to the repo. Nothing here needs that,
+# so we limit it to reading. (Least privilege: a compromised step can do less damage.)
+permissions:
+  contents: read
+
+# If you push again while a run for the same branch or PR is still going, cancel the old run.
+# Only the newest commit's results matter, and this saves runner time.
+# `${{ ... }}` is an expression: GitHub fills in the value (here, the branch or PR ref) at run time.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # ==============================================================================================
+  # Lint and type-check: fast checks, run once (they don't depend on the OS or Python version)
+  # ==============================================================================================
   lint:
     runs-on: ubuntu-latest
     steps:
+      # Steps that start with `uses:` run a reusable action published by someone else. The `@v5`
+      # pins its major version, so a breaking v6 can't change our CI without us opting in.
+      #
+      # Get a copy of the repository onto the runner.
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # setuptools_scm needs full history/tags
+          # By default only the latest commit is fetched. setuptools_scm works out the version
+          # from git tags, so it needs the full history (`0` means everything).
+          fetch-depth: 0
+      # Install the requested Python version and put it on the PATH.
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+      # Steps that start with `run:` are shell commands. Each runner is a throwaway machine, so
+      # there's no .venv: we install straight into the runner's Python.
       - name: Install dependencies
         run: pip install -e ".[dev]"
+      # The same Makefile targets you run locally. The Makefile defaults to `.venv/bin/python`,
+      # and `PYTHON=python` overrides that to use the runner's Python instead.
       - name: Ruff check, ruff format check
         run: make check-format PYTHON=python
       - name: Pyright
         run: make type-check PYTHON=python
 
+  # ==============================================================================================
+  # Tests: every supported Python version, on Linux and Windows
+  # ==============================================================================================
   test:
+    # Read from the matrix below, so this is different for each job.
     runs-on: ${{ matrix.os }}
     strategy:
+      # By default, the first failing job cancels all the others. Turning that off means you see
+      # every failure at once: "fails on 3.10 only" or "fails on Windows only" is a useful clue.
       fail-fast: false
+      # A matrix runs this job once for every combination of values: 2 OSes x 5 Pythons = 10
+      # jobs, all in parallel. The Python versions match `requires-python` and the classifiers
+      # in pyproject.toml. Windows is included because paths, line endings, and file handling
+      # differ there in ways that tests catch. (Add macos-latest when OS behavior matters more.)
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -47,26 +101,37 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: pip install -e ".[dev]"
-      # The same command you run locally; `PYTHON=python` uses the runner's Python instead of .venv
+      # The same command you run locally, so "passes locally" and "passes in CI" mean the same
+      # thing. If any test fails, pytest exits with an error, which fails this step and the job.
       - name: Run tests
         run: make test PYTHON=python
 
+  # ==============================================================================================
+  # Build: only when a GitHub Release is published
+  # ==============================================================================================
   build:
     name: Build distribution
     runs-on: ubuntu-latest
+    # Wait for these jobs, and run only if they all succeeded. Never build a release from code
+    # that fails its checks.
     needs: [lint, test]
+    # Skip this job for ordinary pushes and PRs.
     if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v5
         with:
+          # Especially important here: the release's tag (say `v0.2.0`) becomes the version.
           fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+      # `run: |` allows several commands, one per line.
       - name: Build sdist and wheel
         run: |
           pip install build
           python -m build --sdist --wheel
+      # Save dist/ as an "artifact": files kept after the runner is thrown away. They can be
+      # downloaded from the run's page, or by a later job (like `publish` below).
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -80,12 +145,19 @@ jobs:
   #   needs: build
   #   runs-on: ubuntu-latest
   #   if: github.event_name == 'release'
+  #   # A GitHub "environment" can require approval before the job runs, and holds the record of
+  #   # each deployment. It's set up in the repo's settings (Settings > Environments).
   #   environment:
   #     name: pypi
   #     url: https://pypi.org/project/mypkg/
   #   permissions:
-  #     id-token: write # trusted publishing; no API token needed
+  #     # Trusted publishing: PyPI is configured to trust this repo's workflow, and verifies a
+  #     # short-lived identity token GitHub issues to the job. No PyPI API token is stored in
+  #     # the repo's secrets, so there's no long-lived password to leak.
+  #     id-token: write
   #   steps:
+  #     # Publish exactly the files the `build` job made (and that passed the checks), rather than
+  #     # building them again.
   #     - uses: actions/download-artifact@v4
   #       with:
   #         name: dist
