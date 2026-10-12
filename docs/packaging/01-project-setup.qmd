@@ -92,6 +92,19 @@ include = ["mypkg", "mypkg.*"]
 - pyright runs in **strict** mode, configured in `pyproject.toml`. Only the noisy
   "unknown type" family of checks is relaxed, because numpy and scipy stubs trigger it
   constantly.
+- pyright, run from the command line, is the source of truth: `make type-check` and CI run it,
+  with every setting in `pyproject.toml`. Editors (Pylance in VS Code) read the same settings and
+  show the same results, so a problem that only shows up in the editor means the config needs
+  fixing, not the code.
+- The package is checked in strict mode. Tests are type-checked too, but test function
+  parameters (fixtures and parametrize arguments) don't need annotations, using an execution
+  environment for `tests/`:
+  ```toml
+  include = ["mypkg", "tests"]
+  executionEnvironments = [
+      { root = "tests", extraPaths = ["."], reportMissingParameterType = false, reportUnknownParameterType = false, reportUnknownLambdaType = false },
+  ]
+  ```
 
 ## 9. Use ruff for both linting and formatting, at line length 100
 ```toml
