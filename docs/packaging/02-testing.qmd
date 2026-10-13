@@ -108,6 +108,25 @@ filterwarnings = ["error"]
   with pytest.raises(ValueError, match="Unknown currency 'XYZ'"):
       fmt_currency(10, currency="XYZ")
   ```
+- **Not raising is tested by calling.** Any exception that escapes a test fails it, so a test
+  that only needs the call to succeed just makes the call, with a comment saying so. Usually it
+  also asserts something about the result. When valid and invalid inputs share one parametrize
+  table, the expectation itself is parametrized, with `contextlib.nullcontext` standing in for
+  `pytest.raises`:
+  ```python
+  from contextlib import nullcontext as does_not_raise
+
+  @pytest.mark.parametrize(
+      "decimals, expectation",
+      [
+          pytest.param(2, does_not_raise(), id="two-ok"),
+          pytest.param(-1, pytest.raises(ValueError), id="negative-raises"),
+      ],
+  )
+  def test_fmt_number_validates_decimals(decimals, expectation):
+      with expectation:
+          fmt_number(1.0, decimals=decimals)
+  ```
 - **Warnings are tested with `pytest.warns`**, which `filterwarnings = ["error"]` makes mandatory
   for code that's meant to warn.
 - **Floats are never compared with `==`.** Use `pytest.approx` for scalars and short lists, and
