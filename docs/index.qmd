@@ -1,0 +1,72 @@
+---
+title: ""
+---
+
+<!--
+NOTE: This comment is here because this is an educational repository.
+
+This page is the homepage of the documentation site. Without it, Great Docs would build the
+homepage from the README instead. The two have different jobs:
+
+- README.md is read on GitHub. It introduces the repository: what it is, why it exists, and how
+  to get started with the code. Its links are full URLs, since it's read outside the site.
+- docs/index.qmd (this file) is read on the site. It introduces the package to someone who has
+  come to its documentation, can run code like any other Quarto page, and links to other pages
+  of the site directly.
+
+The title and tagline at the top of the page (the "hero") come from the package name and from
+`hero:` in great-docs.yml.
+
+A Quarto quirk to know about: on a page with `title: ""` that runs code, a heading placed
+directly after a code cell is taken as the page title (and disappears from the page). The
+sentence between the example and "Why tinytab?" below prevents that.
+-->
+
+```{python}
+#| code-fold: true
+#| code-summary: "Show the code"
+from tinytab import Table, fmt_currency, fmt_number
+
+menu = Table(
+    {
+        "item": ["coffee", "bagel", "croissant"],
+        "price": [3.5, 2.25, 4.0],
+        "sold": [120, 45, None],
+    }
+)
+
+menu.fmt("price", fmt_currency).fmt("sold", lambda x: fmt_number(x, decimals=0))
+```
+
+That's tinytab in a nutshell: a small table, with a formatter attached to two of its columns.
+
+## Why tinytab?
+
+tinytab formats values and renders small tables, as text or HTML. It's a morsel of
+[Great Tables](https://github.com/posit-dev/great-tables): a few formatting functions and a very
+simple table class, with no dependencies.
+
+But tinytab isn't really meant to be used. It's an example: a small, complete Python package
+whose packaging, tests, type checking, CI, and documentation are all set up the way a real
+library's would be, so each part can be studied on its own and seen working together. This site
+is part of the example, too.
+
+## What's on this site
+
+- **[User Guide](user-guide/introduction.qmd)**: how to use tinytab, from formatting a single
+  number to rendering and saving tables
+- **[Reference](reference/index.qmd)**: every function and class, generated from the docstrings,
+  with examples that show their real output
+- **[Python Packaging](packaging/index.qmd)**: the opinionated set of practices that tinytab
+  demonstrates, covering project setup, testing, CI, code and API design, and documentation
+
+## Installation
+
+tinytab isn't published on PyPI. Install it from GitHub:
+
+```{.bash filename="Terminal"}
+pip install git+https://github.com/rich-iannone/example-python-package.git
+```
+
+The source code, with its tests and configuration, is in the
+[GitHub repository](https://github.com/rich-iannone/example-python-package).
