@@ -20,6 +20,8 @@
 #   pytest tests/test_formats.py -v                              # this file, one line per test
 #   pytest tests/test_formats.py::test_fmt_number_default        # a single test
 
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 
 from tinytab import fmt_currency, fmt_number, fmt_percent
@@ -180,6 +182,36 @@ def test_formatters_reject_non_numbers(bad):
 def test_fmt_number_options_are_keyword_only():
     with pytest.raises(TypeError):
         fmt_number(1.0, 3)  # type: ignore[misc]
+
+
+# Testing that code *doesn't* raise needs nothing special: just call it. Any exception that
+# escapes a test fails it, so this test checks that every supported code, in any case, is
+# accepted. (pytest has no `does_not_raise()`; it isn't needed here.)
+#
+# A test with no assert is a "smoke test": it only checks that the call works. That's the whole
+# point here, but more often it's worth asserting something about the result too, since "it
+# didn't crash" is a weak check (and a test without an assert can look unfinished).
+@pytest.mark.parametrize("code", ["USD", "usd", "Usd", "EUR", "GBP", "JPY"])
+def test_fmt_currency_accepts_valid_codes(code):
+    fmt_currency(10, currency=code)
+
+
+# When valid and invalid inputs belong in one table of cases, parametrize over the
+# *expectation* itself. `contextlib.nullcontext` (imported at the top as `does_not_raise`) is a
+# context manager that does nothing, so `with does_not_raise():` passes as long as no exception
+# is raised, while `with pytest.raises(...)` requires one. This pattern comes from the pytest
+# documentation ("Parametrizing conditional raising").
+@pytest.mark.parametrize(
+    "decimals, expectation",
+    [
+        pytest.param(0, does_not_raise(), id="zero-ok"),
+        pytest.param(2, does_not_raise(), id="two-ok"),
+        pytest.param(-1, pytest.raises(ValueError), id="negative-raises"),
+    ],
+)
+def test_fmt_number_validates_decimals(decimals, expectation):
+    with expectation:
+        fmt_number(1.0, decimals=decimals)
 
 
 # ------------------------------------------------------------------------------------------------
