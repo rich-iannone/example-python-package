@@ -101,6 +101,12 @@ test-slow: ## Run only the slow tests
 test-update: ## Accept snapshot changes
 	@$(PYTHON) -m pytest --snapshot-update
 
+# Just the gaps: the coverage table lists only files that still have lines no test runs
+# (`skip-covered` leaves out the fully covered ones), with those line numbers in "Missing".
+.PHONY: test-coverage
+test-coverage: ## Run tests and list only the lines no test runs
+	@$(PYTHON) -m pytest -q --cov=tinytab --cov-report=term-missing:skip-covered
+
 # A browsable report: open htmlcov/index.html to see each file with unrun lines highlighted.
 .PHONY: test-cov-html
 test-cov-html: ## Run tests and write an HTML coverage report to htmlcov/
