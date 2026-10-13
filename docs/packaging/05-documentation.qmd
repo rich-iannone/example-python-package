@@ -74,6 +74,10 @@ description: "How every package's documentation site is built with Great Docs."
   - a "Why mypkg?" section
 - `hero:`, `logo:` (light and dark variants) and `nav_icons:` in the config give each site a
   polished, consistent look.
+- The README and `index.qmd` have different jobs. The README is read on GitHub: it introduces
+  the repository, with full URLs for links. `docs/index.qmd` is read on the site: it introduces
+  the package, can run code, and links to other pages of the site directly. When it exists,
+  Great Docs uses it for the homepage instead of the README.
 
 ## 29. Commit the freeze cache
 - `docs/_freeze/` is committed, so CI doesn't re-run every expensive example on every build. Pages
