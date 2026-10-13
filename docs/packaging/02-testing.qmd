@@ -76,8 +76,10 @@ filterwarnings = ["error"]
 - In the newest template (Whittaker, GlassDelta) these options are in `addopts` instead. Keeping
   them in the Makefile **(new)** leaves a bare `pytest` fast and uncluttered while iterating,
   with `make test` as the full run. Either way, `make test` is the command people run.
-- Companion targets: `make test-update` (accept snapshot changes), plus targets for marked
-  subsets where a project has them (`test-unit`, `test-rparity`, `test-slow`).
+- Companion targets: `make test-update` (accept snapshot changes), `make test-coverage` (list
+  only the lines no test runs, via `--cov-report=term-missing:skip-covered`; **new**), plus
+  targets for marked subsets where a project has them (`test-unit`, `test-rparity`,
+  `test-slow`).
 - CI runs `make test` too (with `PYTHON=python` to use the runner's Python instead of `.venv`),
   so "passes locally" and "passes in CI" mean the same thing. See item 12 for the matrix.
 - Day-to-day pytest flags: `-x` (stop at first failure), `--lf` (rerun last failures), `-k`
