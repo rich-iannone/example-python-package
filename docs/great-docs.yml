@@ -25,6 +25,13 @@ authors:
     email: riannone@me.com
     github: rich-iannone
 
+# The large title area at the top of the homepage. Its tagline would otherwise be taken from the
+# README, which describes the repository; on the site, it introduces the package instead.
+hero:
+  tagline: >-
+    A tiny package that formats values and renders small tables. Really, though, it's a teaching
+    resource: a complete, working example of how to package, test, and document a Python library.
+
 # tinytab is never published to PyPI, so don't show a PyPI link (it would lead nowhere).
 pypi: false
 
