@@ -46,7 +46,7 @@ by step, read the sections in this order:
 | 1 | Test discovery, plain `assert`, failure messages, naming tests | `test_formats.py`: *First tests* |
 | 2 | Arrange/act/assert; edge cases | `test_stats.py`: *Basics* |
 | 3 | One test, many cases: `parametrize`, `ids=`, `pytest.param` | `test_formats.py`: *Parametrize* |
-| 4 | Checking errors: `pytest.raises`, `match=`, `excinfo` | `test_formats.py`: *Errors* |
+| 4 | Checking errors (and their absence): `pytest.raises`, `match=`, `excinfo`, `does_not_raise` | `test_formats.py`: *Errors* |
 | 5 | Checking warnings: `pytest.warns` | `test_stats.py`: *Errors and warnings* |
 | 6 | Comparing floats: `pytest.approx` | `test_stats.py`: *Floats* |
 | 7 | Testing result objects | `test_stats.py`: *Result objects* |
